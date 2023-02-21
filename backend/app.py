@@ -1,6 +1,8 @@
+# The high-level structure of the google login system is cited from https://realpython.com/flask-google-login/
 import json
 import os
 import sqlite3
+from dotenv import load_dotenv
 
 from flask import Flask, redirect, request, url_for
 from flask_login import (
@@ -15,8 +17,9 @@ from oauthlib.oauth2 import WebApplicationClient
 
 #google configuration
 # Configuration
-GOOGLE_CLIENT_ID = os.environ.get("228511978014-o7ju4tp1mmn5ilopud23ek8uk01qk83j.apps.googleusercontent.com", None)
-GOOGLE_CLIENT_SECRET = os.environ.get("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", None)
+load_dotenv()
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", None)
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", None)
 GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
