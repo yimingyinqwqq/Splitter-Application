@@ -34,10 +34,10 @@ const Login = () => {
 
         {/* form for authentication/login purposes */}
         <form id="login-form" onSubmit={handleSubmit}>
-          <input type="text" name="username" id="username-field" class="login-form-field" placeholder="Username" 
+          <input type="text" name="username" id="username-field" className="login-form-field" placeholder="Username" 
             onChange = {(e) => setName(e.target.value)} value = {name}/>
 
-          <input type="password" name="password" id="password-field" class="login-form-field" placeholder="Password"
+          <input type="password" name="password" id="password-field" className="login-form-field" placeholder="Password"
             onChange = {(e) => setPwd(e.target.value)} value = {pwd}/>
 
           <button type="submit"> Login </button>
