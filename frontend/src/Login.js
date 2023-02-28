@@ -1,23 +1,44 @@
 // followed a simple tutorial https://medium.com/swlh/how-to-create-your-first-login-page-with-html-css-and-javascript-602dd71144f1
 import React, { useState } from 'react'
+import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 const Login = () => {
+    const navigate = useNavigate();
     const [name, setName] = useState('');
     const [pwd, setPwd] = useState('');
+    // const [authenticated, setauthenticated] = useState(
+    //     JSON.parse(localStorage.getItem("authenticated")) || false
+    // );
+
+    const state = {
+        button: 1
+    };
 
     // handle the onclick event for the Submit button
     const handleSubmit = (e) => {
         e.preventDefault();
-        const username = name;
-        const password = pwd;
-        const loginErrorMsg = document.getElementById("login-error-msg");
+        
+        // user-password login
+        if (state.button === 1) {
+            const username = name;
+            const password = pwd;
+            const loginErrorMsg = document.getElementById("login-error-msg");
 
-        // only for testing purposes
-        if (username === "123" && password === "123") {
-            alert("You have successfully logged in.");
-            window.location.reload();
-        } else {
-            loginErrorMsg.style.opacity = 1;
+            // only for testing purposes
+            if (username === "123" && password === "123") {
+                alert("You have successfully logged in.");
+                navigate('/dashboard', { replace: true });
+            } else {
+                loginErrorMsg.style.opacity = 1;
+            }
+        } 
+
+        // google login
+        else if (state.button === 2) {
+            alert("google login!");
+
+
         }
     }
 
@@ -40,7 +61,8 @@ const Login = () => {
           <input type="password" name="password" id="password-field" className="login-form-field" placeholder="Password"
             onChange = {(e) => setPwd(e.target.value)} value = {pwd}/>
 
-          <button type="submit"> Login </button>
+          <button onClick={() => (state.button = 1)} type="submit" name="btn1" value="btn1"> Login </button>
+          <button onClick={() => (state.button = 2)} type="submit" name="btn2" value="btn2"> Google Login </button>
         </form>
         
     </main>
