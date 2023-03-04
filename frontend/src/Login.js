@@ -39,9 +39,7 @@ const Login = () => {
 
         // google login
         else if (state.button === 2) {
-            alert("google login!");
-
-
+            window.location.replace("https://127.0.0.1:5000/login")
         }
     }
 
@@ -65,7 +63,7 @@ const Login = () => {
                 onChange = {(e) => setPwd(e.target.value)} value = {pwd}/>
 
             <button onClick={() => (state.button = 1)} type="submit" name="btn1" value="btn1"> Login </button>
-            <button onClick={() => (state.button = 2)} type="submit" name="btn2" value="btn2"> Google Login </button>
+            <button onClick={() => (state.button = 2)} type="submit" name="btn1" value="btn1"> Google Login </button>
             </form>
             
         </main>
