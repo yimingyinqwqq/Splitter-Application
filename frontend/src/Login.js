@@ -39,7 +39,6 @@ const Login = () => {
         // google login
         else if (state.button === 2) {
             window.location.replace("https://127.0.0.1:5000/login")
-
             // TODO: finish google login redirection
         }
     }
