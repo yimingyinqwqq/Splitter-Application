@@ -6,20 +6,20 @@ import Login from "./Login"
 import Dashboard from './Dashboard';
 
 class App extends Component {
-  render() {
-    return (
-      <BrowserRouter>
-        <Routes>
-          {/* <Route index element={<App/>} /> */}
-          <Route path="" element={<Login/>} />
-          <Route path="login" element={<Login/>} />
-          <Route path="dashboard" element={<Dashboard/>} />
+    render() {
+        return (
+            <BrowserRouter>
+                <Routes>
+                {/* <Route index element={<App/>} /> */}
+                    <Route path="" element={<Login/>} />
+                    <Route path="login" element={<Login/>} />
+                    <Route path="dashboard" element={<Dashboard/>} />
 
-        </Routes>
-      </BrowserRouter>
-    );
-  }
+                </Routes>
+            </BrowserRouter>
+        );
+    }
 }
 
- export default App;
+export default App;
 
