@@ -42,6 +42,7 @@ const FileUploader = () => {
         // TODO: connect to backend to send and retreive scanning result
         alert("start scanning");
         
+        // FIXME: protect this route
         navigate('/dashboard/scan', { replace: true });
     }
 
@@ -57,11 +58,11 @@ const FileUploader = () => {
                 style={{ display: 'none' }}   /* do not display the input file */
             />
 
-            <br/><br/><br/>
+            <br /><br /><br />
 
             { fileUploaded && <img style={{ maxWidth: 500, maxHeight: 500 }} src={preview} alt=""/> }
 
-            <br/><br/><br/>
+            <br /><br /><br />
 
             { fileUploaded && <button onClick={handleScan}> Scan the Receipt </button> }
 

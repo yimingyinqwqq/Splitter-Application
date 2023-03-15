@@ -13,9 +13,9 @@ const Dashboard = () => {
         if (loggedInUser === true) {
             authenticated.current = true;
         }
-        
+
     }, []);
-    
+
 
     // render page according to value of "authenticated"
     if (!authenticated.current) {
@@ -25,7 +25,7 @@ const Dashboard = () => {
         return (
             <div>
                 <p> Welcome to your Dashboard </p>
-                <FileUploader/>
+                <FileUploader />
             </div>
         );
     }
