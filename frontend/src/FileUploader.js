@@ -1,6 +1,6 @@
 // followed the tutorial from https://medium.com/web-dev-survey-from-kyoto/how-to-customize-the-file-upload-button-in-react-b3866a5973d8
 // and https://stackoverflow.com/questions/38049966/get-image-preview-before-uploading-in-react
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 const FileUploader = () => {
