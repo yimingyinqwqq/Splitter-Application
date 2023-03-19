@@ -8,7 +8,6 @@ import Button from "react-bootstrap/Button"
 import Form from "react-bootstrap/Form"
 import InputGroup from "react-bootstrap/InputGroup";
 import Col from "react-bootstrap/Col";
-import Row from "react-bootstrap/Row";
 
 import GoogleButton from 'react-google-button'
 
@@ -56,11 +55,9 @@ const Login = () => {
 
     // handle the onclick event for login
     const handleLogin = (e) => {
-        e.preventDefault();
-
         // user-password login
         if (state.button === 1) {
-            const loginErrorMsg = document.getElementById("login-error-msg");
+            e.preventDefault();
 
             const formErrors = loginFormValidate(logFormValues);
             setLogFormErrors(formErrors);
@@ -72,8 +69,6 @@ const Login = () => {
                 // set sessionStorage for authenticating purposes
                 sessionStorage.setItem("authenticated", true);
                 navigate('/dashboard', { replace: true });
-            } else {
-                loginErrorMsg.style.opacity = 1;
             }
         }
 
@@ -92,11 +87,6 @@ const Login = () => {
         setRegFormErrors(formErrors);
         setIsTouched(true);
 
-        // if (form.checkValidity() === false || regFormErrors) {
-        //     e.preventDefault();
-        //     e.stopPropagation();
-        // }
-
         // check if formError is empty
         if (JSON.stringify(formErrors) === "{}") {
             // console.log(JSON.stringify(formErrors));
@@ -109,6 +99,7 @@ const Login = () => {
         //TODO: redirect to dashboard or login form
     }
 
+    // validate the login form with backend
     const loginFormValidate = (values) => {
         const errors = {};
 
@@ -147,7 +138,7 @@ const Login = () => {
             errors.password = "Password is required!";
         } else if (!values.password.match(/^(?=.*[0-9])(?=.*[a-zA-Z])(?=.+)/)) {
             errors.password = "Password must contain at least one letter, number, and special character!";
-        } else if (!values.password.match(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/)) {
+        } else if (!values.password.match(/[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/)) {
             errors.password = "Password must contain at least one special character!";
         } else if (values.password.length < 8 || values.password.length > 15) {
             errors.password = "Password must has length 8-15!";
@@ -174,13 +165,10 @@ const Login = () => {
                         <Button className="rounded-pill" style={{ marginLeft: "50%" }} onClick={handleToggle}> Register </Button>
                     </div>
 
-                    {/* show error messages */}
-                    <div id="login-error-msg-holder">
-                        <p id="login-error-msg"> Invalid username <span id="error-msg-second-line"> and/or password </span> </p>
-                    </div>
+                    <br /><br />
 
                     {/* form for authentication/login purposes */}
-                    <Form noValidate autoComplete="off" onSubmit={handleLogin}>
+                    <Form noValidate autoComplete="off" onSubmit={handleLogin} style={{maxWidth: "200px"}}>
                         <Form.Group as={Col} controlId="login-validation-username">
                             <Form.Label> Username/Email </Form.Label>
                             <InputGroup hasValidation>
@@ -198,7 +186,7 @@ const Login = () => {
                             </InputGroup>
                         </Form.Group>
 
-                        <br />
+                        <br /> {!logFormErrors.username && <br />}
 
                         <Form.Group as={Col} controlId="login-validation-password">
                             <Form.Label> Password </Form.Label>
@@ -217,7 +205,7 @@ const Login = () => {
                             </InputGroup>
                         </Form.Group>
 
-                        <br />
+                        <br /> {!logFormErrors.password && <br />}
 
                         <Button onClick={() => (state.button = 1)} type="submit"> Login </Button>
 
@@ -226,8 +214,7 @@ const Login = () => {
 
                     <br /><br />
 
-                    {/* TODO: change this to other icons */}
-                    <GoogleButton onClick={() => (state.button = 2)} type="submit" />
+                    <GoogleButton onClick={() => {state.button = 2; handleLogin();}} type="submit" />
                 </div>
             }
 
@@ -237,13 +224,13 @@ const Login = () => {
                     <div id="login-register-toggle">
                         <span style={{ marginLeft: "25%" }}> </span>
                         <h1> Register </h1>
-                        <Button className="rounded-pill" style={{ marginLeft: "50%" }} onClick={handleToggle}> Register </Button>
+                        <Button className="rounded-pill" style={{ marginLeft: "50%" }} onClick={handleToggle}> Login </Button>
                     </div>
 
                     <br />
 
                     {/* form for register purposes */}
-                    <Form noValidate autoComplete="off" validated={isRegisterValidated} onSubmit={handleRegister}>
+                    <Form noValidate autoComplete="off" validated={isRegisterValidated} onSubmit={handleRegister} style={{maxWidth: "250px"}}>
                         <Form.Group as={Col} controlId="validation-username">
                             <Form.Label> Username </Form.Label>
                             <InputGroup hasValidation>
@@ -261,7 +248,7 @@ const Login = () => {
                             </InputGroup>
                         </Form.Group>
 
-                        <br />
+                        <br /> {!regFormErrors.username && <br />}
 
                         <Form.Group as={Col} controlId="validation-email">
                             <Form.Label> Email Address </Form.Label>
@@ -280,7 +267,7 @@ const Login = () => {
                             </InputGroup>
                         </Form.Group>
                         
-                        <br />
+                        <br /> {!regFormErrors.email && <br />}
 
                         <Form.Group as={Col} controlId="validation-password">
                             <Form.Label> Password </Form.Label>
@@ -299,7 +286,7 @@ const Login = () => {
                             </InputGroup>
                         </Form.Group>
 
-                        <br />
+                        <br /> {!regFormErrors.password && <br />}
 
                         <Form.Group as={Col} controlId="validation-password-confirm">
                             <Form.Label> Confirm Your Password </Form.Label>
@@ -318,7 +305,7 @@ const Login = () => {
                             </InputGroup>
                         </Form.Group>
 
-                        <br />
+                        <br /> {!regFormErrors.passwordRep && <br />}
 
                         <Button type="submit"> Register </Button>
 
