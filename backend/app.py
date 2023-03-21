@@ -112,6 +112,7 @@ def login_callback():
     auth_code = request.args.get("code")
     provider_config = get_google_provider_cfg()
     token_endpoint = provider_config["token_endpoint"]
+
     #prepare token and sent request to get the token
     token_url, headers, data = client.prepare_token_request(
         token_endpoint,
@@ -125,6 +126,7 @@ def login_callback():
         data=data,
         auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
     )
+
     #Get the token
     client.parse_request_body_response(json.dumps(token_response.json()))
 
@@ -132,6 +134,7 @@ def login_callback():
     userinfo_endpoint = provider_config["userinfo_endpoint"]
     info_uri, headers, data = client.add_token(userinfo_endpoint)
     info_response = requests.get(info_uri, headers=headers, data=data)
+
     #verify user information
     if info_response.json().get("email_verified"):
         user_id = info_response.json()["sub"]
@@ -140,15 +143,13 @@ def login_callback():
         username = info_response.json()["given_name"]
     else:
         return "User email not verified by Google.", 400
-    print("here is" + user_id)
-    #Create a user in database if not exist
-    if not User.get(user_id):
+
+    user = User.get(user_id)
+    if not user:
         User.create(user_id, username, email, picture)
-    #Create a user object
-    user = User(id_=user_id, username=username, email=email, profile_pic=picture)
-    #Begin user login session
-    login_user(user)
-    #Return to homepage
+    else:
+        login_user(user)
+
     return redirect(url_for("home"))
 
 #User Logout     
