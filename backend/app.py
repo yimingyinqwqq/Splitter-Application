@@ -160,7 +160,7 @@ def logout():
 @app.route("/scan", methods = ['GET'])
 def scan_receipt():
     # assume the image get from the client is
-    # a list that contains all RBG values 
+    # a list that contains RBG values 
     receipt_image = request.form['receipt']
     results = ((pytesseract.image_to_string(receipt_image,
                 config=options, lang='eng'))).split('\n')
