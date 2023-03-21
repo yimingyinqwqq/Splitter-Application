@@ -4,22 +4,24 @@ import "./App.css"
 
 import Login from "./Login"
 import Dashboard from './Dashboard';
+import Scanboard from './Scanboard';
 
 class App extends Component {
-  render() {
-    return (
-      <BrowserRouter>
-        <Routes>
-          {/* <Route index element={<App/>} /> */}
-          <Route path="" element={<Login/>} />
-          <Route path="login" element={<Login/>} />
-          <Route path="dashboard" element={<Dashboard/>} />
+    render() {
+        return (
+            <BrowserRouter>
+                <Routes>
+                {/* <Route index element={<App/>} /> */}
+                    <Route path="" element={<Login/>} />
+                    <Route path="login" element={<Login/>} />
+                    <Route path="dashboard" element={<Dashboard/>} />
+                    <Route path="dashboard/scan" element={<Scanboard/>} />
 
-        </Routes>
-      </BrowserRouter>
-    );
-  }
+                </Routes>
+            </BrowserRouter>
+        );
+    }
 }
 
- export default App;
+export default App;
 

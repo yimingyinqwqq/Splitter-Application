@@ -7,7 +7,12 @@ import os
 import sqlite3
 import requests
 from dotenv import load_dotenv
+<<<<<<< HEAD
 from flask import Flask, redirect, request, url_for, jsonify
+=======
+from flask_cors import CORS
+from flask import Flask, jsonify, redirect, request, url_for
+>>>>>>> 2effbe98f79e1dbac5b41197b904a98059760002
 from flask_login import (
     LoginManager,
     current_user,
@@ -43,7 +48,7 @@ from flask import Flask
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
-
+CORS(app)
 #setup user login session manager
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -69,6 +74,13 @@ def get_google_provider_cfg():
 @login_manager.user_loader
 def load_user(user_id):
     return User.get(user_id)
+
+@app.after_request
+def after_request(response):
+  response.headers.add('Access-Control-Allow-Origin', '*')
+  response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+  response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+  return response
 
 #Home Page
 @app.route("/")
@@ -101,6 +113,7 @@ def login():
         redirect_uri=request.base_url + "/callback",
         scope=["openid", "email", "profile"],
     )
+
     return redirect(auth_uri)
 
 #Get information from Google
@@ -153,7 +166,7 @@ def login_callback():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for("home"))
+    return redirect("http://localhost:3000/")
 
 # extract receipt information
 # TODO Need to be tested when connected with frontend
@@ -174,4 +187,4 @@ def scan_receipt():
    
 
 if __name__ == "__main__":
-    app.run(ssl_context="adhoc")
+    app.run(ssl_context="adhoc", debug=True)
