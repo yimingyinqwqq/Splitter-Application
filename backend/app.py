@@ -7,8 +7,12 @@ import os
 import sqlite3
 import requests
 from dotenv import load_dotenv
+<<<<<<< HEAD
+from flask import Flask, redirect, request, url_for, jsonify
+=======
 from flask_cors import CORS
 from flask import Flask, jsonify, redirect, request, url_for
+>>>>>>> 2effbe98f79e1dbac5b41197b904a98059760002
 from flask_login import (
     LoginManager,
     current_user,
@@ -16,6 +20,12 @@ from flask_login import (
     login_user,
     logout_user,
 )
+import pytesseract
+import cv2
+
+# config pytestseract
+pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'
+options = "--psm 4"
 
 #authetification package
 from oauthlib.oauth2 import WebApplicationClient
@@ -158,6 +168,24 @@ def login_callback():
 def logout():
     logout_user()
     return redirect("http://localhost:3000/")
+
+# extract receipt information
+# TODO Need to be tested when connected with frontend
+@app.route("/scan", methods = ['GET'])
+def scan_receipt():
+    # assume the image get from the client is
+    # a list that contains RBG values 
+    receipt_image = request.form['receipt']
+    results = ((pytesseract.image_to_string(receipt_image,
+                config=options, lang='eng'))).split('\n')
+      
+   # TODO need to comes up a better method to configure the text later
+   # now just simply return the results
+    for index, product in enumerate(results):
+        results[index] = product.split(' ') 
+
+    return jsonify(receipt_text = results)
+   
 
 if __name__ == "__main__":
     app.run(ssl_context="adhoc", debug=True)
