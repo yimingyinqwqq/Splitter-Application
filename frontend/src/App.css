@@ -71,3 +71,23 @@ body {
   text-decoration: none;
   font-size: 15px;
 }
+
+.navbar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  font-size: x-large;
+  background-color: rgb(80, 59, 1);
+}
+
+.scanning-section-text {
+  font-size: 3rem;
+  font-weight: 200;
+  color: rgb(0, 0, 0);
+}
+
+.fileUploader-container {
+  justify-content: center;
+  align-items: center;
+}
