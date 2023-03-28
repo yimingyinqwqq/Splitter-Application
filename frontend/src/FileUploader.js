@@ -2,14 +2,15 @@
 // and https://stackoverflow.com/questions/38049966/get-image-preview-before-uploading-in-react
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import Button from "react-bootstrap/Button"
 
 const FileUploader = () => {
     const navigate = useNavigate();
-    const hiddenFileInput = useRef(null);                       // Create a reference to the hidden file input element
+    const hiddenFileInput = useRef(null);
     const [fileUploaded, setfileUploaded] = useState(null);
     const [preview, setPreview] = useState(null);
     
-    // Programatically click the hidden file input element when the Button component is clicked
+    // Programatically click the hidden file input element
     const handleClick = (e) => {
         hiddenFileInput.current.click();
     };
@@ -27,7 +28,7 @@ const FileUploader = () => {
         console.log(inputfiletype);
 
         // we need to do a file check here, since the user can escape the required Image format
-        if (inputfiletype.match(/image\/\S+/) === null) { // "\S+ matches one or more non-space character"
+        if (inputfiletype.match(/image\/\S+/) === null) {
             // TODO: for testing purposes. CHANGE ME!
             alert("Invalid Image format");
 
@@ -47,8 +48,8 @@ const FileUploader = () => {
     }
 
     return (
-        <>
-            <button onClick={handleClick}> Upload a Image </button>
+        <div className="fileUploader-container">
+            <Button onClick={handleClick}> Upload a Image </Button>
 
             <input
                 type="file"
@@ -66,7 +67,7 @@ const FileUploader = () => {
 
             { fileUploaded && <button onClick={handleScan}> Scan the Receipt </button> }
 
-        </>
+        </div>
     );
 }
 
