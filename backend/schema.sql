@@ -7,8 +7,7 @@ CREATE TABLE user (
 );
 
 CREATE TABLE chatgroup (
-  group_id INT PRIMARY KEY,
-  group_name TEXT NOT NULL,
+  group_name TEXT PRIMARY KEY,
   expense FLOAT
 );
 
@@ -21,3 +20,11 @@ CREATE TABLE bill (
   amount FLOAT,
   num_splitter INT
 );
+
+CREATE TABLE user_group (
+  user_id TEXT,
+  group_name TEXT,
+  PRIMARY KEY (user_id, group_name),
+  FOREIGN KEY(user_id) REFERENCES user(id),
+  FOREIGN KEY(group_name) REFERENCES chatgroup(group_name)
+)
