@@ -2,8 +2,7 @@ import pytesseract
 import cv2
 
 # Get the original photo
-original = cv2.imread('./backend/cv_model/test2_clip.png')
-
+original = cv2.imread('test_clip.png')
 # use tesseract interface to get the text information
 options = "--psm 4"
 pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'
@@ -13,6 +12,10 @@ pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'
 results = ((pytesseract.image_to_string(original,
 	config=options, lang='eng'))).split('\n')
 
+for i in results:
+    temp = i.split(' ')
+    if len(temp) >= 3:
+        print(temp[0], '*', temp[1], '*'+temp[2])
 # a very simple manipulation of the texts
 # assume all items' last column is prices, which is a digit
 # May think about more stratergies in the future
@@ -24,5 +27,3 @@ for line in results:
 
     if len(line_test) > 0 and (line_test[-1]).isnumeric():
         items.append(line)
-
-print(items)

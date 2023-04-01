@@ -177,12 +177,14 @@ def scan_receipt():
     results = ((pytesseract.image_to_string(receipt_image,
                 config=options, lang='eng'))).split('\n')
       
-   # TODO need to comes up a better method to configure the text later
-   # now just simply return the results
+    outputs = []
     for index, product in enumerate(results):
-        results[index] = product.split(' ') 
+        results[index] = product.split(' ')
+        # Walmart receipt's items have at least 3 columns (name, quantity, price)
+        if len(results) >= 3:
+            outputs.append(results)
 
-    return jsonify(receipt_text = results)
+    return jsonify(receipt_text = outputs), 200
 
 #Create a new group
 @app.route("/create_group", methods = ['POST'])
