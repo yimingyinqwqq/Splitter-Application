@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancel request</title>
+</head>
+<body>
+    <button>click send</button>
+    <button>click cancel</button>
+
+    <script>
+        const btns = document.querySelectorAll('button');
+
+        let x = null;
+        //标识变量
+        let isSending = false;
+
+        btns[0].onclick = function(){
+            
+            //修改标识变量的值
+            if(isSending) x.abort();//如果正在发送，取消该请求，创建新的请求
+            x = new XMLHttpRequest();
+            isSending = true;
+            x.open('GET', 'http://127.0.0.1:8000/timer');
+            x.send();
+            x.onreadystatechange = function(){
+                if(xhr.readyState === 4){
+                    isSending = false;
+                }
+            }
+        }
+
+        //abort
+        btns[1].onclick = function(){
+            x.abort();
+        }
+    </script>
+</body>
+</html>
