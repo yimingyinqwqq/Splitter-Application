@@ -34,3 +34,34 @@ class User(UserMixin):
             (id_, name, email, profile_pic)
         )
         db.commit()
+
+    @staticmethod
+    def add_to_group(user_id, group_name):
+        db = get_db()
+        db.execute(
+            "INSERT INTO user_group (user_id, group_name)"
+            "VALUES (?, ?)",
+            (user_id, group_name)
+        )
+        db.commit()
+    
+    @staticmethod
+    def remove_from_group(user_id, group_name):
+        db = get_db()
+        db.execute(
+            "DELETE FROM user_group WHERE user_id = ? AND group_name = ?",
+            (user_id, group_name)
+        )
+        db.commit()
+    
+    @staticmethod
+    def user_in_group(user_id, group_name):
+        db = get_db()
+        table = db.execute(
+            "SELECT * FROM user JOIN user_group ON user.id = user_group.user_id WHERE user.id = ? AND group_name = ?",
+            (user_id, group_name)
+        ).fetchone()
+        
+        return True if table else False
+        
+        

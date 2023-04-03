@@ -16,6 +16,12 @@ from flask_login import (
     login_user,
     logout_user,
 )
+import pytesseract
+import cv2
+
+# config pytestseract
+pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'
+options = "--psm 4"
 
 #authetification package
 from oauthlib.oauth2 import WebApplicationClient
@@ -23,6 +29,8 @@ from oauthlib.oauth2 import WebApplicationClient
 #import databases
 from db import init_db_command
 from user import User
+from group import Group
+from bill import Bill
 
 #google configuration
 #Configuration
@@ -112,6 +120,7 @@ def login_callback():
     auth_code = request.args.get("code")
     provider_config = get_google_provider_cfg()
     token_endpoint = provider_config["token_endpoint"]
+
     #prepare token and sent request to get the token
     token_url, headers, data = client.prepare_token_request(
         token_endpoint,
@@ -125,6 +134,7 @@ def login_callback():
         data=data,
         auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
     )
+
     #Get the token
     client.parse_request_body_response(json.dumps(token_response.json()))
 
@@ -132,6 +142,7 @@ def login_callback():
     userinfo_endpoint = provider_config["userinfo_endpoint"]
     info_uri, headers, data = client.add_token(userinfo_endpoint)
     info_response = requests.get(info_uri, headers=headers, data=data)
+
     #verify user information
     if info_response.json().get("email_verified"):
         user_id = info_response.json()["sub"]
@@ -140,15 +151,13 @@ def login_callback():
         username = info_response.json()["given_name"]
     else:
         return "User email not verified by Google.", 400
-    print("here is" + user_id)
-    #Create a user in database if not exist
-    if not User.get(user_id):
+
+    user = User.get(user_id)
+    if not user:
         User.create(user_id, username, email, picture)
-    #Create a user object
-    user = User(id_=user_id, username=username, email=email, profile_pic=picture)
-    #Begin user login session
-    login_user(user)
-    #Return to homepage
+    else:
+        login_user(user)
+
     return redirect(url_for("home"))
 
 #User Logout     
@@ -157,6 +166,76 @@ def login_callback():
 def logout():
     logout_user()
     return redirect("http://localhost:3000/")
+
+# extract receipt information
+# TODO Need to be tested when connected with frontend
+@app.route("/scan", methods = ['GET'])
+def scan_receipt():
+    # assume the image get from the client is
+    # a list that contains RBG values 
+    receipt_image = request.form['receipt']
+    results = ((pytesseract.image_to_string(receipt_image,
+                config=options, lang='eng'))).split('\n')
+      
+    outputs = []
+    for index, product in enumerate(results):
+        results[index] = product.split(' ')
+        # Walmart receipt's items have at least 3 columns (name, quantity, price)
+        if len(results) >= 3:
+            outputs.append(results)
+
+    return jsonify(receipt_text = outputs), 200
+
+#Create a new group
+@app.route("/create_group", methods = ['POST'])
+def create_group():
+    group_name = request.json["group_name"]
+    if Group.get(group_name) != None:
+        return jsonify({"error": "Group already exists"}), 409
+    Group.create(group_name)
+    return "200"
+
+#Add user to group
+@app.route("/add_to_group", methods = ['POST'])
+def add_user_to_group():
+    user_id = request.json["user_id"]
+    group_name = request.json["group_name"]
+    #Check if user and group exists
+    if User.get(user_id) == None:
+        return jsonify({"error": "User not exist"}), 409
+    if Group.get(group_name) == None:
+        return jsonify({"error": "Group not exist"}), 409
+
+    User.add_to_group(user_id, group_name)
+    return "200"
+
+#Remove user from group
+@app.route("/remove_from_group", methods = ['POST'])
+def remove_user_from_group():
+    user_id = request.json["user_id"]
+    group_name = request.json["group_name"]
+    #Check if user and group exists
+    if User.get(user_id) == None:
+        return jsonify({"error": "User not exist"}), 409
+    if Group.get(group_name) == None:
+        return jsonify({"error": "Group not exist"}), 409
+    if not User.user_in_group(user_id, group_name):
+        return jsonify({"error": "User is not in the group"}), 409
+    
+    User.remove_from_group(user_id, group_name)
+    return "200"
+
+#Show group members
+@app.route("/show_members", methods = ['GET'])
+def list_members():
+    group_name = request.json["group_name"]
+    #Check if group exist
+    group = Group.get(group_name)
+    if group == None:
+        return jsonify({"error": "Group not exist"}), 409
+    
+    member_list = group.list_members()
+    return jsonify(member_list)
 
 if __name__ == "__main__":
     app.run(ssl_context="adhoc", debug=True)
