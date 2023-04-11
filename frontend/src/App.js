@@ -4,7 +4,6 @@ import "./App.css"
 
 import Login from "./Login"
 import Dashboard from './Dashboard';
-import Scanboard from './Scanboard';
 
 class App extends Component {
     render() {
@@ -15,7 +14,6 @@ class App extends Component {
                     <Route path="" element={<Login/>} />
                     <Route path="login" element={<Login/>} />
                     <Route path="dashboard" element={<Dashboard/>} />
-                    <Route path="dashboard/scan" element={<Scanboard/>} />
 
                 </Routes>
             </BrowserRouter>

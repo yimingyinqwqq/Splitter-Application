@@ -9,7 +9,9 @@ const FileUploader = () => {
     const hiddenFileInput = useRef(null);
     const [fileUploaded, setfileUploaded] = useState(null);
     const [preview, setPreview] = useState(null);
-    
+    const [scanning, setScanning] = useState(false);
+    const [receiptData, setReceiptData] = useState([]);
+
     // Programatically click the hidden file input element
     const handleClick = (e) => {
         hiddenFileInput.current.click();
@@ -40,34 +42,65 @@ const FileUploader = () => {
 
     // handle the scanning of the uploaded image
     const handleScan = (e) => {
-        // TODO: connect to backend to send and retreive scanning result
-        alert("start scanning");
-        
-        // FIXME: protect this route
-        navigate('/dashboard/scan', { replace: true });
+        setScanning(true);
+
+        const imgData = new FormData();
+        imgData.append('receipt', fileUploaded);
+
+        fetch('/scan', {
+            method: 'POST',
+            mode: 'cors',
+            body: imgData
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText)
+                }
+
+                return response.json()
+            })
+            .then(data => setReceiptData(data['receipt_text']))
+
+            .catch(err => {
+                console.log(err)
+            })
     }
 
     return (
-        <div className="fileUploader-container">
-            <Button onClick={handleClick}> Upload a Image </Button>
+        <div className="dashboard">
+            {scanning ? (
+                <>
+                    <div>
+                        <h1>Receipt Data:</h1>
+                        {receiptData.map((line, index) => (
+                            <p key={index}>{line}</p>
+                        ))}
+                    </div>
+                </>
+            ) : (
+                <div className="fileUploader-container">
+                    <Button onClick={handleClick}> Upload a Image </Button>
 
-            <input
-                type="file"
-                accept="image/*"            /* only images can be uploaded */
-                ref={hiddenFileInput}
-                onChange={handleUpload}
-                style={{ display: 'none' }}   /* do not display the input file */
-            />
+                    <input
+                        type="file"
+                        accept="image/*"            /* only images can be uploaded */
+                        ref={hiddenFileInput}
+                        onChange={handleUpload}
+                        style={{ display: 'none' }}   /* do not display the input file */
+                    />
 
-            <br /><br /><br />
+                    <br /><br /><br />
 
-            { fileUploaded && <img style={{ maxWidth: 500, maxHeight: 500 }} src={preview} alt=""/> }
+                    {fileUploaded && <img style={{ maxWidth: 500, maxHeight: 500 }} src={preview} alt="" />}
 
-            <br /><br /><br />
+                    <br /><br /><br />
 
-            { fileUploaded && <button onClick={handleScan}> Scan the Receipt </button> }
+                    {fileUploaded && <button onClick={handleScan}> Scan the Receipt </button>}
 
+                </div>
+            )}
         </div>
+
     );
 }
 
