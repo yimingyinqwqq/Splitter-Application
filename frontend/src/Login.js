@@ -59,6 +59,25 @@ const Login = () => {
         if (state.button === 1) {
             e.preventDefault();
 
+            // const imgData = new FormData();
+            // imgData.append('receipt', fileUploaded);
+    
+            // fetch('/scan', {
+            //     method: 'POST',
+            //     mode: 'cors',
+            //     body: imgData
+            // })
+            //     .then(response => {
+            //         if (!response.ok) {
+            //             throw new Error(response.statusText)
+            //         }
+            //         const result_text = response.json()["1"];
+            //         console.log(result_text);
+    
+            //     }).catch(err => {
+            //         console.log(err)
+            //     })
+
             const formErrors = loginFormValidate(logFormValues);
             setLogFormErrors(formErrors);
 
