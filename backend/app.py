@@ -6,9 +6,11 @@ import json
 import os
 import sqlite3
 import requests
+import random
 from dotenv import load_dotenv
 from flask_cors import CORS
 from flask import Flask, jsonify, redirect, request, url_for
+from flask_bcrypt import Bcrypt
 from flask_login import (
     LoginManager,
     current_user,
@@ -16,14 +18,11 @@ from flask_login import (
     login_user,
     logout_user,
 )
-from io import BytesIO
-from PIL import Image
 import pytesseract
 import cv2
 
 # config pytestseract
-# pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'
-pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'
 options = "--psm 4"
 
 #authetification package
@@ -49,10 +48,11 @@ from flask import Flask
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
-CORS(app)
+CORS(app, supports_credentials=True)
 #setup user login session manager
 login_manager = LoginManager()
 login_manager.init_app(app)
+bcrypt = Bcrypt(app)
 
 #initialize databases
 try:
@@ -74,7 +74,7 @@ def get_google_provider_cfg():
 #function to retrive users from database
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(user_id)
+    return User.get(user_id=user_id)
 
 @app.after_request
 def after_request(response):
@@ -84,23 +84,58 @@ def after_request(response):
   return response
 
 #Home Page
-@app.route("/")
+@app.route("/home", methods = ['GET'])
 def home():
     #If user is logged in
     if current_user.is_authenticated:
-        return (
-            #TODO: Change this
-            "<p>Hello, {}! You're logged in! Email: {}</p>"
-            "<div><p>Google Profile Picture:</p>"
-            '<img src="{}" alt="Google profile pic"></img></div>'
-            '<a class="button" href="/logout">Logout</a>'.format(
-                current_user.username, current_user.email, current_user.profile_pic
-            )
-        )
+        user_info = jsonify({"user_id": current_user.user_id,
+                             "username": current_user.username,
+                             "email": current_user.email})
+        return user_info, 200
+
     #If user is not logged in, display a button for login
     else:
         #TODO: Change this button appearance
-        return '<a class="button" href="/login">Google Login</a>'
+        return redirect(url_for("login"))
+
+#Local user register
+@app.route("/localRegister", methods=["POST"])
+def register_user():
+    email = request.json["email"]
+    password = request.json["password"]
+
+    user_exists = User.query.filter_by(email=email).first() is not None
+
+    if user_exists:
+        return jsonify({"error": "User already exists"}), 409
+
+    hashed_password = bcrypt.generate_password_hash(password)
+
+    user_id = random.randint(0,10000)
+    user = User.get(user_id=user_id)
+    while user:
+        user_id = random.randint(0,10000)
+        user = User.get(user_id=user_id)
+
+    User.create(id_=user_id, name=email, email=email, password=hashed_password)
+    login_user(user)
+
+    return 200
+
+#Local user login
+@app.route("/localLogin", methods=["POST"])
+def login_user():
+    email = request.json["email"]
+    password = request.json["password"]
+
+    user = User.get(email=email, password=password)
+
+    if not user:
+        return jsonify({"error": "User already exists"}), 409
+
+    login_user(user)
+
+    return 200
 
 #User Login
 @app.route("/login")
@@ -115,7 +150,7 @@ def login():
         scope=["openid", "email", "profile"],
     )
 
-    return redirect(auth_uri)
+    return jsonify(uri = auth_uri), 200
 
 #Get information from Google
 @app.route("/login/callback")
@@ -155,7 +190,7 @@ def login_callback():
     else:
         return "User email not verified by Google.", 400
 
-    user = User.get(user_id)
+    user = User.get(user_id=user_id)
     if not user:
         User.create(user_id, username, email, picture)
     else:
@@ -172,30 +207,22 @@ def logout():
 
 # extract receipt information
 # TODO Need to be tested when connected with frontend
-@app.route("/scan", methods = ['POST'])
+@app.route("/scan", methods = ['GET'])
 def scan_receipt():
     # assume the image get from the client is
     # a list that contains RBG values 
-    receipt_img_binary = request.files['receipt'].read()
-    img = Image.open(BytesIO(receipt_img_binary))
-    results = ((pytesseract.image_to_string(img,
+    receipt_image = request.form['receipt']
+    results = ((pytesseract.image_to_string(receipt_image,
                 config=options, lang='eng'))).split('\n')
       
     outputs = []
-    print(results)
     for index, product in enumerate(results):
         results[index] = product.split(' ')
         # Walmart receipt's items have at least 3 columns (name, quantity, price)
         if len(results) >= 3:
-            outputs.append(results[index])
+            outputs.append(results)
 
-    # print(len(outputs))
-    # for t in outputs:
-    #     print(t) 
-
-    print(json.loads(jsonify(receipt_text = outputs).get_data()))
-
-    return jsonify(receipt_text = outputs)
+    return jsonify(receipt_text = outputs), 200
 
 #Create a new group
 @app.route("/create_group", methods = ['POST'])
@@ -212,7 +239,7 @@ def add_user_to_group():
     user_id = request.json["user_id"]
     group_name = request.json["group_name"]
     #Check if user and group exists
-    if User.get(user_id) == None:
+    if User.get(user_id=user_id) == None:
         return jsonify({"error": "User not exist"}), 409
     if Group.get(group_name) == None:
         return jsonify({"error": "Group not exist"}), 409
@@ -226,7 +253,7 @@ def remove_user_from_group():
     user_id = request.json["user_id"]
     group_name = request.json["group_name"]
     #Check if user and group exists
-    if User.get(user_id) == None:
+    if User.get(user_id=user_id) == None:
         return jsonify({"error": "User not exist"}), 409
     if Group.get(group_name) == None:
         return jsonify({"error": "Group not exist"}), 409
@@ -247,6 +274,27 @@ def list_members():
     
     member_list = group.list_members()
     return jsonify(member_list)
+
+#Create a new bill
+@app.route("/create_bill", methods = ['POST'])
+def create_bill():
+    bill_name = request.json["bill_name"]
+    if Bill.get(bill_name) != None:
+        return jsonify({"error": "Bill already exists"}), 409
+    Bill.create(bill_name)
+    return "200"
+
+#Show all bills in a group
+@app.route("/show_bill", methods = ['POST'])
+def list_bills():
+    group_name = request.json["group_name"]
+    #Check if group exist
+    group = Group.get(group_name)
+    if group == None:
+        return jsonify({"error": "Group not exist"}), 409
+    
+    bill_list = group.list_bills()
+    return jsonify(bill_list)
 
 if __name__ == "__main__":
     app.run(ssl_context="adhoc", debug=True)

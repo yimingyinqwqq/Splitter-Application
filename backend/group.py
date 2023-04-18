@@ -44,4 +44,19 @@ class Group:
             member_list.append(row[0])
         
         return member_list
+    
+    def list_bills(self):
+        db = get_db()
+        bills = db.execute(
+            "SELECT bill.name FROM bill JOIN group WHERE group_name = ?",
+            (self.group_name,)
+        )
+        if not bills:
+            return None
+        
+        bills_list = []
+        for row in bills:
+            bills_list.append(row[0])
+        
+        return bills_list
   

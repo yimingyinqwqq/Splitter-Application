@@ -93,8 +93,21 @@ const Login = () => {
 
         // google login
         else if (state.button === 2) {
-            window.location.replace("https://127.0.0.1:5000/login")
+            // window.location.replace("https://127.0.0.1:5000/login")
             // TODO: finish google login redirection
+            fetch('/login', {
+                method: 'GET',
+                mode: 'cors'
+            })
+            .then(response => {
+                return response.json()
+            })
+            .then(data => {
+                console.log(data['uri'])
+            })
+            .catch(err => {
+                console.log(err)
+            })
         }
     }
 
@@ -116,6 +129,20 @@ const Login = () => {
             e.stopPropagation();
         }
         //TODO: redirect to dashboard or login form
+        fetch('/localRegister', {
+            method: 'POST',
+            mode: 'cors',
+            body: JSON.stringify({username:regFormValues.username, email:regFormValues.email, password:regFormValues.password})
+        })
+        .then(response => {
+            return response.json()
+        })
+        .then(data => {
+            console.log(data)
+        })
+        .catch(err => {
+            console.log(err)
+        })
     }
 
     // validate the login form with backend

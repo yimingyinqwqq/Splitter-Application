@@ -3,35 +3,49 @@ from flask_login import UserMixin
 from db import get_db
 
 class User(UserMixin):
-    def __init__(self, id_, username, email, profile_pic):
+    def __init__(self, id_, username, email, profile_pic=None, password=None):
         self.id = id_
         self.username = username
         self.email = email
         self.profile_pic = profile_pic
         self.balance = 0
+        self.password = password
 
     @staticmethod
-    def get(user_id):
+    def get(user_id=None, email=None, password=None):
         db = get_db()
-        user = db.execute(
-            "SELECT * FROM user WHERE id = ?", 
-            (user_id,)
-        ).fetchone()
-        if not user:
-            return None
+        if user_id:
+            user = db.execute(
+                "SELECT * FROM user WHERE id = ?", 
+                (user_id,)
+            ).fetchone()
+            if not user:
+                return None
 
-        user = User(
-            id_=user[0], username=user[1], email=user[2], profile_pic=user[3]
-        )
-        return user
+            user = User(
+                id_=user[0], username=user[1], email=user[2], profile_pic=user[3], password=user[4]
+            )
+            return user
+        else:
+            user = db.execute(
+                "SELECT * FROM user WHERE email = ? AND password = ?", 
+                (email, password)
+            ).fetchone()
+            if not user:
+                return None
+
+            user = User(
+                id_=user[0], username=user[1], email=user[2], profile_pic=user[3], password=user[4]
+            )
+            return user
 
     @staticmethod
-    def create(id_, name, email, profile_pic):
+    def create(id_, name, email, profile_pic=None, password=None):
         db = get_db()
         db.execute(
-            "INSERT INTO user (id, name, email, profile_pic, balance) "
-            "VALUES (?, ?, ?, ?, 0)",
-            (id_, name, email, profile_pic)
+            "INSERT INTO user (id, name, email, profile_pic, balance, password) "
+            "VALUES (?, ?, ?, ?, 0, ?)",
+            (id_, name, email, profile_pic, password)
         )
         db.commit()
 
