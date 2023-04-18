@@ -4,6 +4,7 @@ CREATE TABLE user (
   email TEXT UNIQUE NOT NULL,
   profile_pic TEXT NOT NULL,
   balance FLOAT
+  password TEXT UNIQUE
 );
 
 CREATE TABLE chatgroup (
