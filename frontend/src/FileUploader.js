@@ -3,10 +3,12 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "react-bootstrap/Button"
+import Form from 'react-bootstrap/Form';
 
 const FileUploader = () => {
     const navigate = useNavigate();
     const hiddenFileInput = useRef(null);
+    const [scanForms, setScanForms] = useState({});                  // scan form values
     const [fileUploaded, setfileUploaded] = useState(null);
     const [preview, setPreview] = useState(null);
     const [scanning, setScanning] = useState(false);
@@ -66,16 +68,42 @@ const FileUploader = () => {
             })
     }
 
+    // handle scan form changes
+    const handleScanFormsChange = (e, index) => {
+        const value = e.target.value;
+        const name = "Item" + index;
+        console.log("name is: ", name);
+        console.log("value is: ", value);
+        setScanForms({ ...scanForms, [name]: value });
+    }
+
+    // handle submission of user modification and confirmation of the scanning result
+    const handleSubmitScanForm = (e) => {
+        console.log(scanForms);
+        // for (let i = 0; i < scanForms.current.length; ++i) {
+        //     console.log(scanForms.current[i].defaultValue);
+        // }
+    }
+
     return (
         <div className="dashboard">
             {scanning ? (
                 <>
-                    <div>
-                        <h1>Receipt Data:</h1>
+                    <h1>Receipt Data:</h1>
+                    <Form>
                         {receiptData.map((line, index) => (
-                            <p key={index}>{line}</p>
+                            <>
+                                {/* ref={(element) => scanForms.current.push(element)} */}
+                                <Form.Group className="mb-3" controlId="formBasicEmail" key={index} >
+                                    <Form.Label> Placeholder </Form.Label>
+                                    <Form.Control type="email" defaultValue={line} onChange={(e) => handleScanFormsChange(e, index)} />
+                                </Form.Group>
+                                <Form.Check type="checkbox" label="Check me out" />
+
+                            </>
                         ))}
-                    </div>
+                        <Button type="submit" onClick={handleSubmitScanForm}> Confirm Changes </Button>
+                    </Form>
                 </>
             ) : (
                 <div className="fileUploader-container">
@@ -98,8 +126,9 @@ const FileUploader = () => {
                     {fileUploaded && <button onClick={handleScan}> Scan the Receipt </button>}
 
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
 
     );
 }
