@@ -1,9 +1,8 @@
 CREATE TABLE user (
-  id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
+  email TEXT UNIQUE PRIMARY KEY,
   profile_pic TEXT NOT NULL,
-  balance FLOAT
+  balance FLOAT,
   password TEXT UNIQUE
 );
 
@@ -23,9 +22,9 @@ CREATE TABLE bill (
 );
 
 CREATE TABLE user_group (
-  user_id TEXT,
+  user_email TEXT,
   group_name TEXT,
-  PRIMARY KEY (user_id, group_name),
-  FOREIGN KEY(user_id) REFERENCES user(id),
+  PRIMARY KEY (user_email, group_name),
+  FOREIGN KEY(user_email) REFERENCES user(email),
   FOREIGN KEY(group_name) REFERENCES chatgroup(group_name)
 )

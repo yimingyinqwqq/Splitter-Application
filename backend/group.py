@@ -33,7 +33,7 @@ class Group:
     def list_members(self):
         db = get_db()
         members = db.execute(
-            "SELECT user.name FROM user JOIN user_group ON user.id = user_group.user_id WHERE group_name = ?",
+            "SELECT user.name FROM user JOIN user_group ON user.email = user_group.user_email WHERE group_name = ?",
             (self.group_name,)
         )
         if not members:

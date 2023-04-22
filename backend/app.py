@@ -73,8 +73,8 @@ def get_google_provider_cfg():
 
 #function to retrive users from database
 @login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id=user_id)
+def load_user(user_email):
+    return User.get(email=user_email)
 
 @app.after_request
 def after_request(response):
@@ -88,50 +88,49 @@ def after_request(response):
 def home():
     #If user is logged in
     if current_user.is_authenticated:
-        user_info = jsonify({"user_id": current_user.user_id,
-                             "username": current_user.username,
+        user_info = jsonify({"username": current_user.username,
                              "email": current_user.email})
         return user_info, 200
+        #return redirect("http://localhost:3000")
 
     #If user is not logged in, display a button for login
     else:
         #TODO: Change this button appearance
-        return redirect(url_for("login"))
+        return jsonify({"error": "User not logged in"}), 200
+        #return redirect(url_for("login"))
 
 #Local user register
 @app.route("/localRegister", methods=["POST"])
 def register_user():
     email = request.json["email"]
+    username = request.json["username"]
     password = request.json["password"]
 
-    user_exists = User.query.filter_by(email=email).first() is not None
+    user = User.get(email)
 
-    if user_exists:
+    if user:
         return jsonify({"error": "User already exists"}), 409
 
     hashed_password = bcrypt.generate_password_hash(password)
 
-    user_id = random.randint(0,10000)
-    user = User.get(user_id=user_id)
-    while user:
-        user_id = random.randint(0,10000)
-        user = User.get(user_id=user_id)
-
-    User.create(id_=user_id, name=email, email=email, password=hashed_password)
+    User.create(username=username, email=email, password=hashed_password)
     login_user(user)
 
     return 200
 
 #Local user login
 @app.route("/localLogin", methods=["POST"])
-def login_user():
+def local_login_user():
     email = request.json["email"]
     password = request.json["password"]
 
-    user = User.get(email=email, password=password)
+    user = User.get(email)
 
     if not user:
         return jsonify({"error": "User already exists"}), 409
+
+    if user.password != password:
+        return jsonify({"error": "Incorrect password"}), 409
 
     login_user(user)
 
@@ -150,7 +149,10 @@ def login():
         scope=["openid", "email", "profile"],
     )
 
-    return jsonify(uri = auth_uri), 200
+    return jsonify({"uri": auth_uri}), 200 
+    #return redirect(auth_uri)
+    #return redirect(url_for("home"))
+
 
 #Get information from Google
 @app.route("/login/callback")
@@ -183,16 +185,15 @@ def login_callback():
 
     #verify user information
     if info_response.json().get("email_verified"):
-        user_id = info_response.json()["sub"]
         email = info_response.json()["email"]
         picture = info_response.json()["picture"]
         username = info_response.json()["given_name"]
     else:
         return "User email not verified by Google.", 400
 
-    user = User.get(user_id=user_id)
+    user = User.get(email)
     if not user:
-        User.create(user_id, username, email, picture)
+        User.create(name=username, email=email, profile_pic=picture)
     else:
         login_user(user)
 
@@ -236,31 +237,31 @@ def create_group():
 #Add user to group
 @app.route("/add_to_group", methods = ['POST'])
 def add_user_to_group():
-    user_id = request.json["user_id"]
+    user_email = request.json["user_email"]
     group_name = request.json["group_name"]
     #Check if user and group exists
-    if User.get(user_id=user_id) == None:
+    if User.get(user_email) == None:
         return jsonify({"error": "User not exist"}), 409
     if Group.get(group_name) == None:
         return jsonify({"error": "Group not exist"}), 409
 
-    User.add_to_group(user_id, group_name)
+    User.add_to_group(user_email, group_name)
     return "200"
 
 #Remove user from group
 @app.route("/remove_from_group", methods = ['POST'])
 def remove_user_from_group():
-    user_id = request.json["user_id"]
+    user_email = request.json["user_email"]
     group_name = request.json["group_name"]
     #Check if user and group exists
-    if User.get(user_id=user_id) == None:
+    if User.get(user_email) == None:
         return jsonify({"error": "User not exist"}), 409
     if Group.get(group_name) == None:
         return jsonify({"error": "Group not exist"}), 409
-    if not User.user_in_group(user_id, group_name):
+    if not User.user_in_group(user_email, group_name):
         return jsonify({"error": "User is not in the group"}), 409
     
-    User.remove_from_group(user_id, group_name)
+    User.remove_from_group(user_email, group_name)
     return "200"
 
 #Show group members
