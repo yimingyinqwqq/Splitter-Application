@@ -1,4 +1,5 @@
 import pytest
+import sqlite3
 
 from app import app
 from db import get_db
@@ -34,10 +35,10 @@ def test_add_to_group(client, db):
     db.execute("DELETE FROM user_group")
     db.commit()
 
-    response = client.post('/add_to_group', json={'user_id': '1' , 'group_name': "jeff_group"})
+    response = client.post('/add_to_group', json={'user_email': 'jeff@gmail' , 'group_name': "jeff_group"})
     assert response.status_code == 200
     group = db.execute(
-            "SELECT * FROM user_group WHERE group_name = 'jeff_group' AND user_id = '1'"
+            "SELECT * FROM user_group WHERE group_name = 'jeff_group' AND user_email = 'jeff@gmail'"
         ).fetchone()
     assert group != None
 
@@ -49,10 +50,10 @@ def test_remove_from_group(client, db):
     # )
     # db.commit()
 
-    response = client.post('/remove_from_group', json={'user_id': '1' , 'group_name': "jeff_group"})
+    response = client.post('/remove_from_group', json={'user_email': 'jeff@gmail' , 'group_name': "jeff_group"})
     assert response.status_code == 200
     group = db.execute(
-            "SELECT * FROM user_group WHERE group_name = 'jeff_group' AND user_id = '1'"
+            "SELECT * FROM user_group WHERE group_name = 'jeff_group' AND user_email = 'jeff@gmail'"
         ).fetchone()
     assert group == None
 

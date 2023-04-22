@@ -100,10 +100,25 @@ const Login = () => {
                 mode: 'cors'
             })
             .then(response => {
+                // console.log(response);
                 return response.json()
             })
             .then(data => {
-                console.log(data['uri'])
+                //console.log(data);
+                window.location.replace(data['uri'])
+                // fetch(data['uri'], {
+                //     method: 'GET',
+                //     mode: 'no-cors'
+                // })
+                // .then(response => {
+                //     return response.json()
+                // })
+                // .then(data => {
+                //     console.log(data)
+                // })
+                // .catch(err => {
+                //     console.log(err)
+                // });
             })
             .catch(err => {
                 console.log(err)

@@ -1,12 +1,6 @@
 import sqlite3
 from db import get_db
 
-db = sqlite3.connect(
-    "my_db",
-    detect_types=sqlite3.PARSE_DECLTYPES
-)
-db.row_factory = sqlite3.Row
-
 def list_users():
     users = db.execute(
         "SELECT * FROM user"
@@ -52,18 +46,24 @@ def rm_user(name):
     db.commit()
     print("Removed user " + name)
 
-def create_user(id, name, email):
+def create_user(name, email, password):
     db.execute(
-        "INSERT INTO user (id, name, email, profile_pic, balance)"
-        "VALUES (?, ?, ?, 'none', 0)",
-        (id, name, email)
+        "INSERT INTO user (name, email, profile_pic, balance, password)"
+        "VALUES (?, ?, 'none', 0, ?)",
+        (name, email, password)
     )
     db.commit()
     print("Created user " + name)
 
 if __name__ == "__main__":
-    #create_user("1", "jeff", "jeff@gmail")
-    #create_user("2", "Patrick", "patrick@gmail")
+    db = sqlite3.connect(
+        "my_db",
+        detect_types=sqlite3.PARSE_DECLTYPES
+    )
+    db.row_factory = sqlite3.Row
+
+    create_user("jeff", "jeff@gmail", "123")
+    create_user("Patrick", "patrick@gmail", "1234")
     list_users()
     list_groups()
     list_user_group()
