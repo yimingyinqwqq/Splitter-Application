@@ -20,9 +20,12 @@ from flask_login import (
 )
 import pytesseract
 import cv2
+from io import BytesIO
+from PIL import Image
 
 # config pytestseract
-pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'
+# pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'
+pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 options = "--psm 4"
 
 #authetification package
@@ -207,13 +210,13 @@ def logout():
     return redirect("http://localhost:3000/")
 
 # extract receipt information
-# TODO Need to be tested when connected with frontend
-@app.route("/scan", methods = ['GET'])
+@app.route("/scan", methods = ['POST'])
 def scan_receipt():
     # assume the image get from the client is
     # a list that contains RBG values 
-    receipt_image = request.form['receipt']
-    results = ((pytesseract.image_to_string(receipt_image,
+    receipt_img_binary = request.files['receipt'].read()
+    img = Image.open(BytesIO(receipt_img_binary))
+    results = ((pytesseract.image_to_string(img,
                 config=options, lang='eng'))).split('\n')
       
     outputs = []
@@ -221,9 +224,9 @@ def scan_receipt():
         results[index] = product.split(' ')
         # Walmart receipt's items have at least 3 columns (name, quantity, price)
         if len(results) >= 3:
-            outputs.append(results)
+            outputs.append(results[index])
 
-    return jsonify(receipt_text = outputs), 200
+    return jsonify(receipt_text = outputs)
 
 #Create a new group
 @app.route("/create_group", methods = ['POST'])
