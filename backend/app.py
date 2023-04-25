@@ -22,9 +22,11 @@ from flask_login import (
 )
 import pytesseract
 import cv2
+import utilities
 
 # config pytestseract
-pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'
+# pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'
+pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 options = "--psm 4"
 
 #authetification package
@@ -223,9 +225,12 @@ def scan_receipt():
     for index, product in enumerate(results):
         results[index] = product.split(' ')
         # Walmart receipt's items have at least 3 columns (name, quantity, price)
-        if len(results) >= 3:
-            outputs.append(results[index])
+        if len(results[index]) >= 3:
+            processed_line = utilities.parsing_lang(results[index])
+            if processed_line:
+                outputs.append(utilities.parsing_lang(results[index]))
 
+    # print(outputs)
     return jsonify(receipt_text = outputs)
 
 #Create a new group

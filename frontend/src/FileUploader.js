@@ -4,6 +4,7 @@ import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "react-bootstrap/Button"
 import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
 
 const FileUploader = () => {
     const navigate = useNavigate();
@@ -61,7 +62,21 @@ const FileUploader = () => {
 
                 return response.json()
             })
-            .then(data => setReceiptData(data['receipt_text']))
+            .then(data => {
+                setReceiptData(data['receipt_text']);
+                data['receipt_text'].map((line, index) => {
+                    setScanForms(scanForms => {
+                        const newItemKey = "Item" + index;
+                        const newItemValue = {
+                            name: line[0],
+                            amount: line[1],
+                            price: line[2],
+                            checked: false
+                        };
+                        return { ...scanForms, [newItemKey]: newItemValue };
+                    });
+                });
+            })
 
             .catch(err => {
                 console.log(err)
@@ -69,12 +84,23 @@ const FileUploader = () => {
     }
 
     // handle scan form changes
-    const handleScanFormsChange = (e, index) => {
+    const handleScanFormsChange = (e, index, tag) => {
         const value = e.target.value;
-        const name = "Item" + index;
-        console.log("name is: ", name);
+        const key = "Item" + index;
+        console.log("key is: ", key);
         console.log("value is: ", value);
-        setScanForms({ ...scanForms, [name]: value });
+        // tag specifies whether to set the "amount", "price", or "checked" of the current item
+        if (tag === "checked") {
+            setScanForms((prevScanForms) => {
+                const newItem = { ...prevScanForms[key], [tag]: !prevScanForms[key][tag] };
+                return { ...prevScanForms, [key]: newItem };
+            });
+        } else {
+            setScanForms((prevScanForms) => {
+                const newItem = { ...prevScanForms[key], [tag]: value };
+                return { ...prevScanForms, [key]: newItem };
+            });
+        }
     }
 
     // handle submission of user modification and confirmation of the scanning result
@@ -91,17 +117,18 @@ const FileUploader = () => {
                 <>
                     <h1>Receipt Data:</h1>
                     <Form>
-                        {receiptData.map((line, index) => (
+                        {receiptData.map((line, index) =>
+                        (
                             <>
-                                {/* ref={(element) => scanForms.current.push(element)} */}
-                                <Form.Group className="mb-3" controlId="formBasicEmail" key={index} >
-                                    <Form.Label> Placeholder </Form.Label>
-                                    <Form.Control type="email" defaultValue={line} onChange={(e) => handleScanFormsChange(e, index)} />
-                                </Form.Group>
-                                <Form.Check type="checkbox" label="Check me out" />
-
+                                <InputGroup className="mb-3" key={index}>
+                                    <Form.Label> {line[0]} </Form.Label>
+                                    <InputGroup.Checkbox onChange={(e) => handleScanFormsChange(e, index, "checked")} />
+                                    <Form.Control type="email" defaultValue={line[1]} onChange={(e) => handleScanFormsChange(e, index, "amount")} />
+                                    <Form.Control type="email" defaultValue={line[2]} onChange={(e) => handleScanFormsChange(e, index, "price")} />
+                                </InputGroup>
                             </>
-                        ))}
+                        )
+                        )}
                         <Button type="submit" onClick={handleSubmitScanForm}> Confirm Changes </Button>
                     </Form>
                 </>
