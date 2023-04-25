@@ -1,7 +1,7 @@
 CREATE TABLE user (
   name TEXT NOT NULL,
   email TEXT UNIQUE PRIMARY KEY,
-  profile_pic TEXT NOT NULL,
+  profile_pic TEXT,
   balance FLOAT,
   password TEXT UNIQUE
 );

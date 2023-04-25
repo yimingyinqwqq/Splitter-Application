@@ -115,10 +115,9 @@ def register_user():
 
     hashed_password = bcrypt.generate_password_hash(password)
 
-    User.create(username=username, email=email, password=hashed_password)
-    login_user(user)
+    User.create(name=username, email=email, password=hashed_password)
 
-    return 200
+    return "200"
 
 #Local user login
 @app.route("/localLogin", methods=["POST"])
@@ -131,12 +130,12 @@ def local_login_user():
     if not user:
         return jsonify({"error": "User already exists"}), 409
 
-    if user.password != password:
+    if not bcrypt.check_password_hash(user.password, password):
         return jsonify({"error": "Incorrect password"}), 409
 
     login_user(user)
 
-    return 200
+    return "200"
 
 #User Login
 @app.route("/login")

@@ -89,6 +89,24 @@ const Login = () => {
                 sessionStorage.setItem("authenticated", true);
                 navigate('/dashboard', { replace: true });
             }
+
+            fetch('/localLogin', {
+                method: 'POST',
+                mode: 'cors',
+                headers: {'Content-Type': 'application/json'},
+                //TODO: change usernmae 
+                body: JSON.stringify({email: logFormValues.username, password: logFormValues.password})
+            })
+            .then(response => {
+                alert("You have successfully logged in.");
+
+                // set sessionStorage for authenticating purposes
+                sessionStorage.setItem("authenticated", true);
+                navigate('/dashboard', { replace: true });
+            })
+            .catch(err => {
+                alert(err)
+            })
         }
 
         // google login
@@ -121,7 +139,7 @@ const Login = () => {
                 // });
             })
             .catch(err => {
-                console.log(err)
+                alert(err)
             })
         }
     }
@@ -139,25 +157,29 @@ const Login = () => {
             // console.log(JSON.stringify(formErrors));
             alert("successful");
             setIsRegisterValidated(true);
+
+            //TODO: Currently only allow using email to login, add username later
+            fetch('/localRegister', {
+                method: 'POST',
+                mode: 'cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: regFormValues.username, email: regFormValues.email, password: regFormValues.password})
+            })
+            .then(response => {
+                return response.json()
+            })
+            .then(data => {
+                console.log(data)
+            })
+            .catch(err => {
+                alert(err)
+            })
+
         } else {
             alert("unsuccessful");
             e.stopPropagation();
         }
-        //TODO: redirect to dashboard or login form
-        fetch('/localRegister', {
-            method: 'POST',
-            mode: 'cors',
-            body: JSON.stringify({username:regFormValues.username, email:regFormValues.email, password:regFormValues.password})
-        })
-        .then(response => {
-            return response.json()
-        })
-        .then(data => {
-            console.log(data)
-        })
-        .catch(err => {
-            console.log(err)
-        })
+        
     }
 
     // validate the login form with backend
