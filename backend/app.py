@@ -7,6 +7,8 @@ import os
 import sqlite3
 import requests
 import random
+from io import BytesIO
+from PIL import Image
 from dotenv import load_dotenv
 from flask_cors import CORS
 from flask import Flask, jsonify, redirect, request, url_for
@@ -20,12 +22,9 @@ from flask_login import (
 )
 import pytesseract
 import cv2
-from io import BytesIO
-from PIL import Image
 
 # config pytestseract
-# pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'
-pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'
 options = "--psm 4"
 
 #authetification package
@@ -209,6 +208,8 @@ def logout():
     logout_user()
     return redirect("http://localhost:3000/")
 
+# extract receipt information
+# TODO Need to be tested when connected with frontend
 # extract receipt information
 @app.route("/scan", methods = ['POST'])
 def scan_receipt():

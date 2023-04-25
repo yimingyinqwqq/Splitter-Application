@@ -16,9 +16,6 @@ for i in results:
     temp = i.split(' ')
     if len(temp) >= 3:
         print(temp[0], '*', temp[1], '*'+temp[2])
-# a very simple manipulation of the texts
-# assume all items' last column is prices, which is a digit
-# May think about more stratergies in the future
 items = []
 
 for line in results:
