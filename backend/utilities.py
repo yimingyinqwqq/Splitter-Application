@@ -4,8 +4,7 @@ Assume the input list follows [index, char, char, ..., count, unit price]
 '''
 
 def parsing_lang(splited_list):
-    result = []
-
+    result = [""]
     for token in splited_list:
         skip_count = 0
         if token.isnumeric():
@@ -17,7 +16,7 @@ def parsing_lang(splited_list):
                 if skip_count == 3:
                     break
         else:
-            result.append(token)
+            result[0] += (token)
     return result
 
         
