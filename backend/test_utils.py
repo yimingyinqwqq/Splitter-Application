@@ -33,18 +33,27 @@ def rm_group(name):
     db.commit()
     print("Removed group " + name)
 
+def user_exist(email, my_db):
+    user = my_db.execute(
+        "SELECT * FROM user WHERE email = ?",
+        (email,)
+    ).fetchone()
+    if not user:
+        return False
+    return True
+
 def rm_all_users():
     db.execute("DELETE FROM user")
     db.commit()
     print("Removed all users")
 
-def rm_user(name):
-    db.execute(
-        "DELETE FROM user WHERE name = ?",
-        (name,)
+def rm_user(email, my_db):
+    my_db.execute(
+        "DELETE FROM user WHERE email = ?",
+        (email,)
     )
-    db.commit()
-    print("Removed user " + name)
+    my_db.commit()
+    print("Removed user " + email)
 
 def create_user(name, email, password):
     db.execute(
@@ -54,6 +63,14 @@ def create_user(name, email, password):
     )
     db.commit()
     print("Created user " + name)
+
+def rm_user_from_group(email, group_name):
+    db.execute(
+        "DELETE FROM user_group WHERE user_email = ? AND group_name = ?",
+        (email, group_name)
+    )
+    db.commit()
+    print("Removed user " + email + " from group " + group_name)
 
 if __name__ == "__main__":
     db = sqlite3.connect(

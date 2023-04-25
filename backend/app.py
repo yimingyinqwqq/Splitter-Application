@@ -128,7 +128,7 @@ def local_login_user():
     user = User.get(email)
 
     if not user:
-        return jsonify({"error": "User already exists"}), 409
+        return jsonify({"error": "User does not exist"}), 409
 
     if not bcrypt.check_password_hash(user.password, password):
         return jsonify({"error": "Incorrect password"}), 409
@@ -205,7 +205,7 @@ def login_callback():
 @login_required
 def logout():
     logout_user()
-    return redirect("http://localhost:3000/")
+    return "200"
 
 # extract receipt information
 # TODO Need to be tested when connected with frontend

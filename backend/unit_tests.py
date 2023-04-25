@@ -3,6 +3,7 @@ import sqlite3
 
 from app import app
 from db import get_db
+from test_utils import *
 
 @pytest.fixture
 def client():
@@ -17,7 +18,35 @@ def db():
 
     yield db
 
+def test_local_register(client, db):
+    if user_exist("jeff@gmail", db):
+        rm_user("jeff@gmail", db)
 
+    response = client.post('/localRegister', json={'username': 'jeff', 'email': 'jeff@gmail' , 'password': "testuser123!"})
+    assert response.status_code == 200
+    user = db.execute(
+            "SELECT * FROM user WHERE name = 'jeff' AND email = 'jeff@gmail'"
+        ).fetchone()
+    assert user != None
+
+def test_local_register_fail(client, db):
+    response = client.post('/localRegister', json={'username': 'jeff', 'email': 'jeff@gmail' , 'password': "testuser123!"})
+    assert response.status_code == 409
+    assert response.get_json() == {'error': 'User already exists'}
+
+def test_local_login(client, db):
+    response = client.post('/localLogin', json={'email': 'jeff@gmail' , 'password': "testuser123!"})
+    assert response.status_code == 200
+
+def test_local_login_fail_1(client, db):
+    response = client.post('/localLogin', json={'email': 'testuser111@gmail' , 'password': "testuser123!"})
+    assert response.status_code == 409
+    assert response.get_json() == {'error': 'User does not exist'}
+
+def test_local_login_fail_2(client, db):
+    response = client.post('/localLogin', json={'email': 'jeff@gmail' , 'password': "testuser123"})
+    assert response.status_code == 409
+    assert response.get_json() == {"error": "Incorrect password"}
 
 def test_create_group(client, db):
     db.execute("DELETE FROM chatgroup")
@@ -43,13 +72,6 @@ def test_add_to_group(client, db):
     assert group != None
 
 def test_remove_from_group(client, db):
-    # db.execute(
-    #     "INSERT INTO user_group (user_id, group_name) "
-    #     "VALUES (?, ?)",
-    #     ("1", "jeff_group")
-    # )
-    # db.commit()
-
     response = client.post('/remove_from_group', json={'user_email': 'jeff@gmail' , 'group_name': "jeff_group"})
     assert response.status_code == 200
     group = db.execute(
