@@ -1,22 +1,31 @@
+def is_float(string):
+    if string.replace(".", "").isnumeric():
+        return True
+    else:
+        return False
+
+
 '''
 Assume the input list follows [index, char, char, ..., count, unit price]
 
 '''
 
 def parsing_lang(splited_list):
-    result = [""]
+    result = []
+
+    # filter rows that are not items
+    if not splited_list[0].isnumeric():
+        return None
+    
+    itemName = ""
     for token in splited_list:
-        skip_count = 0
-        if token.isnumeric():
-            skip_count += 1
-            if skip_count == 1:
-                continue
-            else:
-                result.append(token)
-                if skip_count == 3:
-                    break
+        if not is_float(token):
+            itemName = itemName + " " + token
         else:
-            result[0] += (token)
+            result.append(token)
+    result.pop(0)
+    result.insert(0, itemName)
+        
     return result
 
         
