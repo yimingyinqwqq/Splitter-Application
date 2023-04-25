@@ -62,9 +62,11 @@ if __name__ == "__main__":
     )
     db.row_factory = sqlite3.Row
 
-    create_user("jeff", "jeff@gmail", "123")
-    create_user("Patrick", "patrick@gmail", "1234")
+    #create_user("jeff", "jeff@gmail", "123")
+    #create_user("Patrick", "patrick@gmail", "1234")
     list_users()
     list_groups()
     list_user_group()
+
+    # rm_all_users()
 

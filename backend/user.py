@@ -3,11 +3,11 @@ from flask_login import UserMixin
 from db import get_db
 
 class User(UserMixin):
-    def __init__(self, username, email, profile_pic=None, password=None):
+    def __init__(self, username, email, profile_pic=None, balance=0, password=None):
         self.username = username
         self.email = email
         self.profile_pic = profile_pic
-        self.balance = 0
+        self.balance = balance
         self.password = password
 
     #Override the Flask default get_id method to return the user's email
@@ -25,7 +25,7 @@ class User(UserMixin):
             return None
 
         user = User(
-            username=user[0], email=user[1], profile_pic=user[2], password=user[3]
+            username=user[0], email=user[1], profile_pic=user[2], balance=user[3], password=user[4]
         )
         return user
 
