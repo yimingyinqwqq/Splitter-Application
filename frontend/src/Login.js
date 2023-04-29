@@ -10,6 +10,8 @@ import InputGroup from "react-bootstrap/InputGroup";
 import Col from "react-bootstrap/Col";
 
 import GoogleButton from 'react-google-button'
+import { useGoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -26,6 +28,8 @@ const Login = () => {
     // const [authenticated, setauthenticated] = useState(
     //     JSON.parse(localStorage.getItem("authenticated")) || false
     // );
+    const [ user, setUser ] = useState(null);
+    const [ profile, setProfile ] = useState(null);
 
     const state = {
         button: 1
@@ -34,6 +38,55 @@ const Login = () => {
     useEffect(() => {
         console.log(regFormErrors);
     }, [regFormErrors]);
+
+    useEffect(() => {
+        if (user) {
+            axios
+                .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`, {
+                    headers: {
+                        Authorization: `Bearer ${user.access_token}`,
+                        Accept: 'application/json'
+                    }
+                })
+                .then((res) => {
+                    setProfile(res.data);
+                })
+                .catch((err) => console.log(err));
+        }
+
+    }, [user]);
+
+    useEffect(() => {
+        if (profile) {
+            fetch('/googleLogin', {
+                method: 'POST',
+                mode: 'cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: profile.name, email: profile.email, picture: profile.picture})
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    alert("You have successfully logged in.");
+    
+                    // set sessionStorage for authenticating purposes
+                    sessionStorage.setItem("authenticated", true);
+                    navigate('/dashboard', { replace: true });
+                } else {
+                    return response.json().then(data => {
+                        alert(data['error'])
+                    })
+                }
+            })
+            .catch(err => {
+                alert(err)
+            })
+        }
+    }, [profile]);
+    
+    const googlelogin = useGoogleLogin({
+        onSuccess: (codeResponse) => setUser(codeResponse),
+        onError: (error) => console.log('Login Failed:', error)
+    });
 
     // switch between login form and registration form
     const handleToggle = (e) => {
@@ -98,49 +151,27 @@ const Login = () => {
                 body: JSON.stringify({email: logFormValues.username, password: logFormValues.password})
             })
             .then(response => {
-                alert("You have successfully logged in.");
+                if (response.status === 200) {
+                    alert("You have successfully logged in.");
 
-                // set sessionStorage for authenticating purposes
-                sessionStorage.setItem("authenticated", true);
-                navigate('/dashboard', { replace: true });
+                    // set sessionStorage for authenticating purposes
+                    sessionStorage.setItem("authenticated", true);
+                    navigate('/dashboard', { replace: true });
+                } else {
+                    return response.json().then(data => {
+                        alert(data['error'])
+                    })
+                }
             })
             .catch(err => {
                 alert(err)
             })
+            
         }
 
         // google login
         else if (state.button === 2) {
-            // window.location.replace("https://127.0.0.1:5000/login")
-            // TODO: finish google login redirection
-            fetch('/login', {
-                method: 'GET',
-                mode: 'cors'
-            })
-            .then(response => {
-                // console.log(response);
-                return response.json()
-            })
-            .then(data => {
-                //console.log(data);
-                window.location.replace(data['uri'])
-                // fetch(data['uri'], {
-                //     method: 'GET',
-                //     mode: 'no-cors'
-                // })
-                // .then(response => {
-                //     return response.json()
-                // })
-                // .then(data => {
-                //     console.log(data)
-                // })
-                // .catch(err => {
-                //     console.log(err)
-                // });
-            })
-            .catch(err => {
-                alert(err)
-            })
+            googlelogin();
         }
     }
 
@@ -172,7 +203,7 @@ const Login = () => {
                 console.log(data)
             })
             .catch(err => {
-                alert(err)
+                // alert(err)
             })
 
         } else {

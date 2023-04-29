@@ -140,21 +140,36 @@ def local_login_user():
     return "200"
 
 #User Login
-@app.route("/login")
+@app.route("/googleLogin", methods=["POST"])
 def login():
     #get authorization endpoint
-    provider_config = get_google_provider_cfg()
-    auth_endpoint = provider_config["authorization_endpoint"]
+        # provider_config = get_google_provider_cfg()
+        # auth_endpoint = provider_config["authorization_endpoint"]
 
-    auth_uri = client.prepare_request_uri(
-        auth_endpoint,
-        redirect_uri=request.base_url + "/callback",
-        scope=["openid", "email", "profile"],
-    )
+        # auth_uri = client.prepare_request_uri(
+        #     auth_endpoint,
+        #     redirect_uri=request.base_url + "/callback",
+        #     scope=["openid", "email", "profile"],
+        # )
 
-    return jsonify({"uri": auth_uri}), 200 
+        # return jsonify({"uri": auth_uri}), 200 
     #return redirect(auth_uri)
     #return redirect(url_for("home"))
+
+    #New version
+    username = request.json["username"]
+    email = request.json["email"]
+    picture = request.json["picture"]
+
+    user = User.get(email)
+
+    if not user:
+        User.create(name=username, email=email, profile_pic=picture)
+        user = User.get(email)
+
+    login_user(user)
+
+    return "200"
 
 
 #Get information from Google
