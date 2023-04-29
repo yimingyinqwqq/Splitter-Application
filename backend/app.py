@@ -130,7 +130,7 @@ def local_login_user():
     user = User.get(email)
 
     if not user:
-        return jsonify({"error": "User already exists"}), 409
+        return jsonify({"error": "User does not exist"}), 409
 
     if not bcrypt.check_password_hash(user.password, password):
         return jsonify({"error": "Incorrect password"}), 409
@@ -140,21 +140,36 @@ def local_login_user():
     return "200"
 
 #User Login
-@app.route("/login")
+@app.route("/googleLogin", methods=["POST"])
 def login():
     #get authorization endpoint
-    provider_config = get_google_provider_cfg()
-    auth_endpoint = provider_config["authorization_endpoint"]
+        # provider_config = get_google_provider_cfg()
+        # auth_endpoint = provider_config["authorization_endpoint"]
 
-    auth_uri = client.prepare_request_uri(
-        auth_endpoint,
-        redirect_uri=request.base_url + "/callback",
-        scope=["openid", "email", "profile"],
-    )
+        # auth_uri = client.prepare_request_uri(
+        #     auth_endpoint,
+        #     redirect_uri=request.base_url + "/callback",
+        #     scope=["openid", "email", "profile"],
+        # )
 
-    return jsonify({"uri": auth_uri}), 200 
+        # return jsonify({"uri": auth_uri}), 200 
     #return redirect(auth_uri)
     #return redirect(url_for("home"))
+
+    #New version
+    username = request.json["username"]
+    email = request.json["email"]
+    picture = request.json["picture"]
+
+    user = User.get(email)
+
+    if not user:
+        User.create(name=username, email=email, profile_pic=picture)
+        user = User.get(email)
+
+    login_user(user)
+
+    return "200"
 
 
 #Get information from Google
@@ -207,7 +222,7 @@ def login_callback():
 @login_required
 def logout():
     logout_user()
-    return redirect("http://localhost:3000/")
+    return "200"
 
 # extract receipt information
 # TODO Need to be tested when connected with frontend
