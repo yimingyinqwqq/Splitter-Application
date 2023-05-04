@@ -49,6 +49,7 @@ def test_local_login_fail_2(client, db):
     assert response.get_json() == {"error": "Incorrect password"}
 
 def test_create_group(client, db):
+    client.post('/localLogin', json={'email': 'jeff@gmail' , 'password': "testuser123!"})
     db.execute("DELETE FROM chatgroup")
     db.commit()
 
@@ -61,6 +62,7 @@ def test_create_group(client, db):
     assert group != None
 
 def test_add_to_group(client, db):
+    client.post('/localLogin', json={'email': 'jeff@gmail' , 'password': "testuser123!"})
     db.execute("DELETE FROM user_group")
     db.commit()
 
@@ -70,6 +72,12 @@ def test_add_to_group(client, db):
             "SELECT * FROM user_group WHERE group_name = 'jeff_group' AND user_email = 'jeff@gmail'"
         ).fetchone()
     assert group != None
+
+def test_load_relevent_groups(client, db):
+    client.post('/localLogin', json={'email': 'jeff@gmail' , 'password': "testuser123!"})
+    response = client.get('/show_user_groups')
+    assert response.status_code == 200
+    assert response.get_json() == ['jeff_group']
 
 def test_remove_from_group(client, db):
     response = client.post('/remove_from_group', json={'user_email': 'jeff@gmail' , 'group_name': "jeff_group"})
