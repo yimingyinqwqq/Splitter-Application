@@ -105,10 +105,26 @@ const FileUploader = () => {
 
     // handle submission of user modification and confirmation of the scanning result
     const handleSubmitScanForm = (e) => {
-        console.log(scanForms);
-        // for (let i = 0; i < scanForms.current.length; ++i) {
-        //     console.log(scanForms.current[i].defaultValue);
+        // // remove all entries that are not checked
+        // for (const [key1, value1] of Object.entries(scanForms)) {
+        //     console.log(key1, value1);
+        //     if (!value1["checked"]) {
+        //       delete scanForms[key1];
+        //     }
         // }
+
+        // send the confirm scanning result to the backend
+        fetch('/scan_confirm', {
+            method: 'POST',
+            mode: 'cors',
+            body: scanForms
+        })
+            .then(() => {
+            })
+            .catch(err => {
+                console.log(err)
+            })
+
     }
 
     return (
@@ -123,8 +139,8 @@ const FileUploader = () => {
                                 <InputGroup className="mb-3" key={index}>
                                     <Form.Label> {line[0]} </Form.Label>
                                     <InputGroup.Checkbox onChange={(e) => handleScanFormsChange(e, index, "checked")} />
-                                    <Form.Control type="email" defaultValue={line[1]} onChange={(e) => handleScanFormsChange(e, index, "amount")} />
-                                    <Form.Control type="email" defaultValue={line[2]} onChange={(e) => handleScanFormsChange(e, index, "price")} />
+                                    <Form.Control type="text" defaultValue={line[1]} onChange={(e) => handleScanFormsChange(e, index, "amount")} />
+                                    <Form.Control type="text" defaultValue={line[2]} onChange={(e) => handleScanFormsChange(e, index, "price")} />
                                 </InputGroup>
                             </>
                         )

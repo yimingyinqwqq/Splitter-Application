@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
@@ -7,14 +7,14 @@ import Button from "react-bootstrap/Button"
 import FileUploader from "./FileUploader";
 
 const NavBar = () => {
-    const flagDashBoard = useRef(true);
+    const [isDashBoard, setIsDashBoard] = useState(true);
 
     const handleClick = (elementName) => {
         //TODO: not work as intended, check conditionally rendering
         if (elementName === "dashboard") {
-            flagDashBoard.current = true;
+            setIsDashBoard(true);
         } else {
-            flagDashBoard.current = false;
+            setIsDashBoard(false);
         }
     }
 
@@ -35,11 +35,13 @@ const NavBar = () => {
                 </Container>
             </Navbar>
 
-            {flagDashBoard.current ?
-                <>
-                    <p className='scanning-section-text'> Welcome to your Dashboard </p>
-                    <FileUploader />
-                </> : <p className='scanning-section-text'> Scanning History </p>
+            {isDashBoard ?
+                (
+                    <>
+                        <p className='scanning-section-text'> Welcome to your Dashboard </p>
+                        <FileUploader />
+                    </>
+                ) : (<p className='scanning-section-text'> Scanning History </p>)
             }
 
         </>
