@@ -68,5 +68,26 @@ class User(UserMixin):
         ).fetchone()
         
         return True if table else False
+    
+    '''
+    return: list of string(group's name)
+    '''
+    @staticmethod
+    def load_relevent_groups (user_email):
+        db = get_db()
+        table = db.execute(
+            "SELECT group_name FROM user JOIN user_group ON user.email = user_group.user_email WHERE user.email = ?",
+            (user_email, )
+        ).fetchall()
+        group_list = []
+        if not table:
+            return None
+        else:
+            for group in table:
+                group_list.append(group[0])
+
+        return group_list
+
+        
         
         
