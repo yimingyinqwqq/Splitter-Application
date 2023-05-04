@@ -91,3 +91,21 @@ body {
   justify-content: center;
   align-items: center;
 }
+
+.group-function-container {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+}
+
+/* .group-container {
+  flex: 1;
+}
+
+.create-group-container {
+  flex: 1;
+}
+
+.add-group-container {
+  flex: 1;
+} */
