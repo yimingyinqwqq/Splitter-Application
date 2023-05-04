@@ -9,6 +9,7 @@ class User(UserMixin):
         self.profile_pic = profile_pic
         self.balance = balance
         self.password = password
+        self.current_group = None
 
     #Override the Flask default get_id method to return the user's email
     def get_id(self):

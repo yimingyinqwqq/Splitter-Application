@@ -1,36 +1,34 @@
 from db import get_db
 
 class Bill:
-    def __init__(self, id, name, creator, group_name, date, amount, num_splitter):
-        self.bill_id = id
-        self.bill_name = name
+    def __init__(self, date, creator, group_name, amount, description):
         self.date = date
         self.creator = creator
         self.group_name = group_name
         self.amount = amount
-        self.num_splitter = num_splitter
+        self.description = description
 
     @staticmethod
-    def get(bill_id):
+    def get(bill_date):
         db = get_db()
         bill = db.execute(
-            "SELECT * FROM bill WHERE bill_id = ?", 
-            (bill_id,)
+            "SELECT * FROM bill WHERE bill_date = ?", 
+            (bill_date,)
         ).fetchone()
         if not bill:
             return None
 
         bill = Bill(
-            id = bill[0], name = bill[1], creator = bill[2], group_name = bill[3], date = bill[4], amount = bill[5], num_splitter = bill[6]
+            date = bill[0], creator = bill[1], group_name = bill[2], amount = bill[3], description=bill[4]
         )
         return bill
     
     @staticmethod
-    def create(id, name, creator, group_name, date, amount, num_splitter):
+    def create(date, creator, group_name, amount, description):
         db = get_db()
         db.execute(
-            "INSERT INTO chatgroup (bill_id, bill_name, date, creator, group_name, amount, num_splitter)"
-            "VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (id, name, creator, group_name, date, amount, num_splitter)
+            "INSERT INTO chatgroup (date, creator, group_name, amount,  description) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (date, creator, group_name, amount, description)
         )
         db.commit()

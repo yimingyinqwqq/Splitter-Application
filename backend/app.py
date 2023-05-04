@@ -23,6 +23,7 @@ from flask_login import (
 import pytesseract
 import cv2
 import utilities
+from datetime import date, datetime
 
 # config pytestseract
 # pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'
@@ -247,6 +248,23 @@ def scan_receipt():
 
     # print(outputs)
     return jsonify(receipt_text = outputs)
+
+@app.route("/scan_confirm", methods = ['POST'])
+def scan_confirm():
+    total_amount = 0
+    bill_date = date.today().strftime("%m/%d/%Y %H:%M:%S")
+    #TODO: handle case when user is not logged in
+    creator = current_user.email
+    for _, item in request.json.items():
+        total_amount += item['amount'] * item['price']
+    description = request.json['description']
+
+    if current_user.current_group == None:
+        return jsonify({"error": "User is not in a group"}), 409
+
+    Bill.create(bill_date, creator, current_user.current_group, total_amount, description)
+    return "200"
+
 
 #Create a new group
 @app.route("/create_group", methods = ['POST'])

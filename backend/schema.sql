@@ -12,13 +12,13 @@ CREATE TABLE chatgroup (
 );
 
 CREATE TABLE bill (
-  bill_id INT PRIMARY KEY,
-  bill_name TEXT,
+  bill_date TEXT PRIMARY KEY,
   creator TEXT NOT NULL,
-  group_id INT,
-  date TEXT,
+  group_name TEXT NOT NULL,
   amount FLOAT,
-  num_splitter INT
+  description TEXT,
+  FOREIGN KEY(creator) REFERENCES user(email), 
+  FOREIGN KEY(group_name) REFERENCES chatgroup(group_name)
 );
 
 CREATE TABLE user_group (
