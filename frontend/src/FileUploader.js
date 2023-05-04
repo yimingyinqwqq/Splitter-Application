@@ -125,7 +125,8 @@ const FileUploader = () => {
         fetch('/scan_confirm', {
             method: 'POST',
             mode: 'cors',
-            body: scanForms
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(scanForms)
         })
             .then(() => {
             })
