@@ -22,6 +22,8 @@ const FileUploader = () => {
 
     // handle the user-selected file 
     const handleUpload = (e) => {
+        e.preventDefault();
+        
         // check if no file selected
         if (!e.target.files || e.target.files.length === 0) {
             return;
@@ -45,6 +47,8 @@ const FileUploader = () => {
 
     // handle the scanning of the uploaded image
     const handleScan = (e) => {
+        e.preventDefault();
+
         setScanning(true);
 
         const imgData = new FormData();
@@ -85,6 +89,8 @@ const FileUploader = () => {
 
     // handle scan form changes
     const handleScanFormsChange = (e, index, tag) => {
+        e.preventDefault();
+
         const value = e.target.value;
         const key = "Item" + index;
         console.log("key is: ", key);
@@ -105,6 +111,7 @@ const FileUploader = () => {
 
     // handle submission of user modification and confirmation of the scanning result
     const handleSubmitScanForm = (e) => {
+        e.preventDefault();
         // // remove all entries that are not checked
         // for (const [key1, value1] of Object.entries(scanForms)) {
         //     console.log(key1, value1);
@@ -114,6 +121,7 @@ const FileUploader = () => {
         // }
 
         // send the confirm scanning result to the backend
+        
         fetch('/scan_confirm', {
             method: 'POST',
             mode: 'cors',
