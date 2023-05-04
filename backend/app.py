@@ -273,20 +273,26 @@ def create_group():
     if Group.get(group_name) != None:
         return "409"
     Group.create(group_name)
+
+    #Add user to the created group
+    User.add_to_group(current_user.email, group_name)
+
     return "200"
 
 #Add user to group
 @app.route("/add_to_group", methods = ['POST'])
 def add_user_to_group():
-    user_email = request.json["user_email"]
     group_name = request.json["group_name"]
-    #Check if user and group exists
-    if User.get(user_email) == None:
-        return jsonify({"error": "User not exist"}), 409
+
+    #Check if user logged in 
+    if not current_user.is_authenticated:
+        return jsonify({"error": "User not logged in"}), 409
+    
+    #Check if group exists
     if Group.get(group_name) == None:
         return jsonify({"error": "Group not exist"}), 409
 
-    User.add_to_group(user_email, group_name)
+    User.add_to_group(current_user.email, group_name)
     return "200"
 
 #Remove user from group
@@ -304,6 +310,24 @@ def remove_user_from_group():
     
     User.remove_from_group(user_email, group_name)
     return "200"
+
+@app.route("/show_user_groups", methods = ['GET'])
+def show_user_groups():
+    #Check if user logged in 
+    if not current_user.is_authenticated:
+        return jsonify({"error": "User not logged in"}), 409
+    
+    group_list = User.load_relevent_groups(current_user.email)
+
+    return jsonify(group_list), 200
+
+@app.route("/get_group_info", methods = ['POST'])
+def get_group_info():
+    group_name = request.json["group_name"]
+    group = Group.get(group_name)
+    if group == None:
+        return jsonify({"error": "Group not exist"}), 409
+    return jsonify(group.to_dict())
 
 #Show group members
 @app.route("/show_members", methods = ['GET'])
