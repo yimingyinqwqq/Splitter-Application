@@ -5,6 +5,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Button from "react-bootstrap/Button"
 
 import FileUploader from "./FileUploader";
+import Group from './Group';
 
 const NavBar = () => {
     const [isDashBoard, setIsDashBoard] = useState(true);
@@ -29,7 +30,7 @@ const NavBar = () => {
                 <Container>
                     <Nav>
                         <Nav.Link onClick={() => handleClick("dashboard")}> Dashboard </Nav.Link>
-                        <Nav.Link onClick={() => handleClick("history")}> History </Nav.Link>
+                        <Nav.Link onClick={() => handleClick("scan")}> Scan </Nav.Link>
                     </Nav>
                     <Button onClick={handleLogout}> Logout </Button>
                 </Container>
@@ -39,9 +40,14 @@ const NavBar = () => {
                 (
                     <>
                         <p className='scanning-section-text'> Welcome to your Dashboard </p>
+                        <Group />
+                    </>
+                ) : (
+                    <>
+                        <p className='scanning-section-text'> Scanning receipt </p>
                         <FileUploader />
                     </>
-                ) : (<p className='scanning-section-text'> Scanning History </p>)
+                )
             }
 
         </>

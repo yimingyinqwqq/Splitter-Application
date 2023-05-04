@@ -253,7 +253,7 @@ def scan_receipt():
 def create_group():
     group_name = request.json["group_name"]
     if Group.get(group_name) != None:
-        return jsonify({"error": "Group already exists"}), 409
+        return "409"
     Group.create(group_name)
     return "200"
 
