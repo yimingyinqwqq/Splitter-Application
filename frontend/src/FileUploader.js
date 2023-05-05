@@ -168,10 +168,12 @@ const FileUploader = () => {
             })
             .then(data => {
                 // TODO: change the alert into separate web pages
+                let msg = "";
                 for (const [key, value] of Object.entries(data)) {
                     console.log(key, value);
-                    alert("account : " + key + " needs to pay " + value + "$");
+                    msg += ("account : " + key + " needs to pay " + value + "$\n");
                 }
+                alert(msg);
                 window.location.reload();
             })
             .catch(err => {
@@ -194,7 +196,7 @@ const FileUploader = () => {
                         <InputGroup className="mb-3">
                             <Form.Label style={{ width: "40%", fontWeight: "bold" }}>Name</Form.Label>
                             <Form.Label style={{ width: "33%", fontWeight: "bold" }}>Quantity</Form.Label>
-                            <Form.Label style={{ width: "20%", fontWeight: "bold" }}>Price</Form.Label>
+                            <Form.Label style={{ width: "20%", fontWeight: "bold" }}>Price($)</Form.Label>
                         </InputGroup>
 
                         {receiptData.map((line, index) =>

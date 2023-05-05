@@ -101,13 +101,11 @@ def home():
             {"username": current_user.username, "email": current_user.email}
         )
         return user_info, 200
-        # return redirect("http://localhost:3000")
 
     # If user is not logged in, display a button for login
     else:
         # TODO: Change this button appearance
-        return jsonify({"error": "User not logged in"}), 200
-        # return redirect(url_for("login"))
+        return jsonify({"error": "User not logged in"}), 409
 
 
 # Local user register
