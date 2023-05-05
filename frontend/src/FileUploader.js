@@ -1,13 +1,13 @@
 // followed the tutorial from https://medium.com/web-dev-survey-from-kyoto/how-to-customize-the-file-upload-button-in-react-b3866a5973d8
 // and https://stackoverflow.com/questions/38049966/get-image-preview-before-uploading-in-react
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import Button from "react-bootstrap/Button"
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 
 const FileUploader = () => {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const hiddenFileInput = useRef(null);
     const [scanForms, setScanForms] = useState({});                  // scan form values
     const [fileUploaded, setfileUploaded] = useState(null);
@@ -42,7 +42,7 @@ const FileUploader = () => {
 
     // Programatically click the hidden file input element
     const handleClick = (e) => {
-        if (selectedGroup === "") {
+        if (selectedGroup === "" || selectedGroup === null || selectedGroup === 409) {
             alert("Select your group first!");
         } else {
             hiddenFileInput.current.click();
@@ -108,6 +108,9 @@ const FileUploader = () => {
                         };
                         return { ...scanForms, [newItemKey]: newItemValue };
                     });
+
+                    // placeholder
+                    return null;
                 });
             })
             .catch(err => {
@@ -117,8 +120,6 @@ const FileUploader = () => {
 
     // handle scan form changes
     const handleScanFormsChange = (e, index, tag) => {
-        e.preventDefault();
-
         const value = e.target.value;
         const key = "Item" + index;
         console.log("key is: ", key);
@@ -130,6 +131,8 @@ const FileUploader = () => {
                 return { ...prevScanForms, [key]: newItem };
             });
         } else {
+            e.preventDefault();
+
             setScanForms((prevScanForms) => {
                 const newItem = { ...prevScanForms[key], [tag]: value };
                 return { ...prevScanForms, [key]: newItem };
@@ -164,8 +167,12 @@ const FileUploader = () => {
                 return response.json();
             })
             .then(data => {
-                console.log("scan confirm is : ", data);
-
+                // TODO: change the alert into separate web pages
+                for (const [key, value] of Object.entries(data)) {
+                    console.log(key, value);
+                    alert("account : " + key + " needs to pay " + value + "$");
+                }
+                window.location.reload();
             })
             .catch(err => {
                 console.log(err)
@@ -180,17 +187,24 @@ const FileUploader = () => {
             {scanning ? (
                 <>
                     <h1>Receipt Data:</h1>
+
+                    <br></br>
+
                     <Form>
+                        <InputGroup className="mb-3">
+                            <Form.Label style={{ width: "40%", fontWeight: "bold" }}>Name</Form.Label>
+                            <Form.Label style={{ width: "33%", fontWeight: "bold" }}>Quantity</Form.Label>
+                            <Form.Label style={{ width: "20%", fontWeight: "bold" }}>Price</Form.Label>
+                        </InputGroup>
+
                         {receiptData.map((line, index) =>
                         (
-                            <>
-                                <InputGroup className="mb-3" key={index}>
-                                    <Form.Label> {line[0]} </Form.Label>
-                                    <InputGroup.Checkbox onChange={(e) => handleScanFormsChange(e, index, "checked")} />
-                                    <Form.Control type="text" defaultValue={line[1]} onChange={(e) => handleScanFormsChange(e, index, "amount")} />
-                                    <Form.Control type="text" defaultValue={line[2]} onChange={(e) => handleScanFormsChange(e, index, "price")} />
-                                </InputGroup>
-                            </>
+                            <InputGroup className="mb-3" key={index}>
+                                <Form.Label style={{ width: "40%" }}> {line[0]} </Form.Label>
+                                <InputGroup.Checkbox onChange={(e) => handleScanFormsChange(e, index, "checked")} />
+                                <Form.Control style={{ width: "5%" }} type="text" defaultValue={line[1]} onChange={(e) => handleScanFormsChange(e, index, "amount")} />
+                                <Form.Control style={{ width: "5%" }} type="text" defaultValue={line[2]} onChange={(e) => handleScanFormsChange(e, index, "price")} />
+                            </InputGroup>
                         )
                         )}
                         <Button type="submit" onClick={handleSubmitScanForm}> Confirm Changes </Button>
@@ -214,7 +228,7 @@ const FileUploader = () => {
 
                     <br /><br /><br />
 
-                    {fileUploaded && <button onClick={handleScan}> Scan the Receipt </button>}
+                    {fileUploaded && <Button className="scan-button" onClick={handleScan}> Scan the Receipt </Button>}
 
                 </div>
             )

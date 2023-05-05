@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { } from 'react';
 import { Link } from 'react-router-dom'
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
@@ -6,8 +6,6 @@ import Navbar from 'react-bootstrap/Navbar';
 import Button from "react-bootstrap/Button"
 
 const NavBar = () => {
-    const [isDashBoard, setIsDashBoard] = useState(true);
-
     const handleLogout = () => {
         //TODO: set a timeout to automatically display logout info
         sessionStorage.setItem("authenticated", "false");
