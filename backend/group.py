@@ -23,12 +23,16 @@ class Group:
     @staticmethod
     def create(name):
         db = get_db()
+
+        if len(name.strip()) == 0:
+            return None
         db.execute(
             "INSERT INTO chatgroup (group_name, expense) "
             "VALUES (?, 0)",
             (name,)
         )
         db.commit()
+        return name
 
     def list_members(self):
         db = get_db()
