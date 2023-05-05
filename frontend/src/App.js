@@ -4,6 +4,8 @@ import "./App.css"
 
 import Login from "./Login"
 import Dashboard from './Dashboard';
+import FileUploader from './FileUploader';
+import Group from './Group';
 
 class App extends Component {
     render() {
@@ -12,9 +14,9 @@ class App extends Component {
                 <Routes>
                 {/* <Route index element={<App/>} /> */}
                     <Route path="" element={<Login/>} />
-                    <Route path="login" element={<Login/>} />
-                    <Route path="dashboard" element={<Dashboard/>} />
-
+                    <Route path="/login" element={<Login/>} />
+                    <Route path="/dashboard" element={<><Dashboard/><Group/></>} />
+                    <Route path="/dashboard/scan" element={<><Dashboard/><FileUploader/></>} />
                 </Routes>
             </BrowserRouter>
         );
