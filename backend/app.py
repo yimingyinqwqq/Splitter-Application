@@ -256,10 +256,12 @@ def scan_confirm():
     #TODO: handle case when user is not logged in
     creator = current_user.email
     for _, item in request.json.items():
-        total_amount += item['amount'] * item['price']
-    description = request.json['description']
+        total_amount += float(item['amount']) * float(item['price'])
+    # TODO: add description in frontend
+    # description = request.json['description']
 
-    Bill.create(bill_date, creator, current_user.current_group, total_amount, description)
+    # Bill.create(bill_date, creator, current_user.current_group, total_amount, description)
+    Bill.create(bill_date, creator, current_user.current_group, total_amount, "")
     
     group_name = current_user.current_group
     group = Group.get(group_name)
@@ -318,9 +320,12 @@ def add_user_to_group():
     User.add_to_group(current_user.email, group_name)
     return "200"
 
+# FIXME: should use the above statement, this is temporary
+selected_group = None
 #Select the user's current group
-@app.route("/select_group", methods = ['POST'])
+@app.route("/select_group", methods = ['POST', 'GET'])
 def select_group():
+    global selected_group
     #If method is POST, set the current group to the selected group
     if request.method == 'POST':
         group_name = request.json["group_name"]
@@ -333,18 +338,23 @@ def select_group():
             return jsonify({"error": "User is not in the group"}), 409
 
         current_user.current_group = group_name
+        # FIXME: should use the above statement, this is temporary
+        selected_group = group_name
         return "200"
     #Else, check if the current group is set
-    else:
+    elif request.method == 'GET':
         #If user has no current group, return 409
-        if current_user.current_group == None:
+        # FIXME: should use the above statement, this is temporary
+        if current_user.current_group == None and selected_group == None:
             return "409"
         else:
-            return "200"
+            # FIXME: should use the above statement, this is temporary
+            return jsonify(selected_group), 200
+        
         
 #Show group members and each member's balance
 @app.route("/show_members_info", methods = ['POST'])
-def list_members():
+def list_members_and_balance():
     group_name = request.json["group_name"]
     #Check if group exist
     group = Group.get(group_name)
