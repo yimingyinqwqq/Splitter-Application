@@ -26,6 +26,8 @@ class Group:
 
         if len(name.strip()) == 0:
             return None
+        if Group.get(name) == None:
+            return None
         db.execute(
             "INSERT INTO chatgroup (group_name, expense) "
             "VALUES (?, 0)",
