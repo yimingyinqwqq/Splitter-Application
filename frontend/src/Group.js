@@ -69,13 +69,11 @@ const Group = () => {
                 if (data === 200) {
                     console.log("200");
                     setIsCreatGroupNameValid(true);
-                    // console.log("200");
                 } else if (data === 409) {
+                    // group name already exists
                     console.log("409");
                     setIsCreatGroupNameValid(false);
                 }
-
-
             })
             .catch(err => {
                 console.log(err);
@@ -85,19 +83,32 @@ const Group = () => {
     const handleAddGroup = (e) => {
         e.preventDefault();
 
-        // fetch('/add_to_group', {
-        //     method: 'POST',
-        //     mode: 'cors',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({ "group_name": creatGroupName })
-        // })
-        //     .then(response => {
-        //         if (!response.ok) {
-        //             throw new Error(response.statusText)
-        //         }
+        fetch('/add_to_group', {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ "group_name": findGroupName })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText)
+                }
 
-        //         return response.json()
-        //     })
+                return response.json()
+            })
+            .then(data => {
+                if (data === 200) {
+                    console.log("200");
+                    setIsFindGroupNameValid(true);
+                } else if (data === 409) {
+                    // group name not found
+                    console.log("409");
+                    setIsFindGroupNameValid(false);
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
 
     }
 
@@ -125,6 +136,9 @@ const Group = () => {
                     </>
                 )}
 
+                {/* <ListGroup.Item action variant="primary">
+                    Select this group
+                </ListGroup.Item> */}
             </ListGroup>
 
             <Form className="create-group-container">
