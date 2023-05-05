@@ -121,7 +121,7 @@ const Group = () => {
             method: 'POST',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(item)
+            body: JSON.stringify({"group_name" : item})
         })
 
         navigate('/dashboard/scan', { replace: true });

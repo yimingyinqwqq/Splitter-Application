@@ -3,17 +3,21 @@ from flask_login import UserMixin
 from db import get_db
 
 class User(UserMixin):
-    def __init__(self, username, email, profile_pic=None, balance=0, password=None):
+    def __init__(self, username, email, profile_pic=None, balance=0, password=None, current_group="aaa"):
         self.username = username
         self.email = email
         self.profile_pic = profile_pic
         self.balance = balance
         self.password = password
-        self.current_group = None
+        self.current_group = current_group
 
     #Override the Flask default get_id method to return the user's email
     def get_id(self):
            return self.email
+    
+   
+    def set_currentGroup(self, current_group):
+        self.current_group = current_group
 
     @staticmethod
     def get(email):
