@@ -11,6 +11,7 @@ const Group = () => {
     const [joinGroupName, setJoinGroupName] = useState("");
     const [isCreatGroupNameValid, setIsCreatGroupNameValid] = useState(true);
     const [isJoinGroupNameValid, setIsJoinGroupNameValid] = useState(true);
+    const [joinGroupError, setJoinGroupError] = useState("");
     const [userGroups, setUserGroups] = useState([]);                                         // all groups that the current user is in
 
 
@@ -52,6 +53,8 @@ const Group = () => {
     }
 
     const handleCreateGroup = (e) => {
+        e.preventDefault();
+        
         fetch('/create_group', {
             method: 'POST',
             mode: 'cors',
@@ -68,6 +71,7 @@ const Group = () => {
             .then(data => {
                 if (data === 200) {
                     console.log("200");
+                    window.location.reload();
                     setIsCreatGroupNameValid(true);
                 } else if (data === 409) {
                     // group name already exists
@@ -81,6 +85,8 @@ const Group = () => {
     }
 
     const handleAddGroup = (e) => {
+        e.preventDefault();
+
         fetch('/add_to_group', {
             method: 'POST',
             mode: 'cors',
@@ -88,7 +94,8 @@ const Group = () => {
             body: JSON.stringify({ "group_name": joinGroupName })
         })
             .then(response => {
-                if (!response.ok) {
+                if (!response.ok && response.status !== 409) {
+                    console.log(response.statusText);
                     throw new Error(response.statusText)
                 }
 
@@ -96,11 +103,11 @@ const Group = () => {
             })
             .then(data => {
                 if (data === 200) {
-                    console.log("200");
                     setIsJoinGroupNameValid(true);
-                } else if (data === 409) {
+                    window.location.reload();
+                } else if (data["error"]) {
                     // group name not found
-                    console.log("409");
+                    setJoinGroupError(data["error"]);
                     setIsJoinGroupNameValid(false);
                 }
             })
@@ -181,7 +188,7 @@ const Group = () => {
                             onChange={handleJoinGroupFormChange}
                             isInvalid={!isJoinGroupNameValid}
                         />
-                        <Form.Control.Feedback type="invalid"> The group does not exist! </Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid"> {joinGroupError} </Form.Control.Feedback>
                     </InputGroup>
                     <Button type="submit" onClick={handleAddGroup}> Join Group </Button>
                 </Form>

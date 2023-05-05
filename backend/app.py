@@ -1,6 +1,6 @@
-#The high-level structure of the google login system is cited from https://realpython.com/flask-google-login/
-#Sources used: https://flask-login.readthedocs.io/en/latest
-#https://flask.palletsprojects.com/en/1.0.x/tutorial/database/
+# The high-level structure of the google login system is cited from https://realpython.com/flask-google-login/
+# Sources used: https://flask-login.readthedocs.io/en/latest
+# https://flask.palletsprojects.com/en/1.0.x/tutorial/database/
 
 import json
 import os
@@ -11,7 +11,7 @@ from io import BytesIO
 from PIL import Image
 from dotenv import load_dotenv
 from flask_cors import CORS
-from flask import Flask, jsonify, redirect, request, url_for
+from flask import Flask, jsonify, redirect, request, url_for, session
 from flask_bcrypt import Bcrypt
 from flask_login import (
     LoginManager,
@@ -26,27 +26,27 @@ from datetime import date, datetime
 
 # config pytestseract
 # pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'
-pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = (
+    "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
+)
 options = "--psm 4"
 
-#authetification package
+# authetification package
 from oauthlib.oauth2 import WebApplicationClient
 
-#import databases
+# import databases
 from db import init_db_command
 from user import User
 from group import Group
 from bill import Bill
 from bill_split import even_splitter
 
-#google configuration
-#Configuration
+# google configuration
+# Configuration
 load_dotenv()
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", None)
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", None)
-GOOGLE_DISCOVERY_URL = (
-    "https://accounts.google.com/.well-known/openid-configuration"
-)
+GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
 
 from flask import Flask
@@ -54,20 +54,21 @@ from flask import Flask
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
 CORS(app, supports_credentials=True)
-#setup user login session manager
+# setup user login session manager
 login_manager = LoginManager()
 login_manager.init_app(app)
 bcrypt = Bcrypt(app)
 
-#initialize databases
+# initialize databases
 try:
     init_db_command()
 except:
-    #Assume the database it's existed
+    # Assume the database it's existed
     pass
 
-#setup OAuth 2 client
+# setup OAuth 2 client
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
+
 
 def get_google_provider_cfg():
     try:
@@ -76,35 +77,40 @@ def get_google_provider_cfg():
         print("get provider config failed")
     return config
 
-#function to retrive users from database
+
+# function to retrive users from database
 @login_manager.user_loader
 def load_user(user_email):
     return User.get(email=user_email)
 
+
 @app.after_request
 def after_request(response):
-  response.headers.add('Access-Control-Allow-Origin', '*')
-  response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-  response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-  return response
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+    response.headers.add("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+    return response
 
-#Home Page
-@app.route("/home", methods = ['GET'])
+
+# Home Page
+@app.route("/home", methods=["GET"])
 def home():
-    #If user is logged in
+    # If user is logged in
     if current_user.is_authenticated:
-        user_info = jsonify({"username": current_user.username,
-                             "email": current_user.email})
+        user_info = jsonify(
+            {"username": current_user.username, "email": current_user.email}
+        )
         return user_info, 200
-        #return redirect("http://localhost:3000")
+        # return redirect("http://localhost:3000")
 
-    #If user is not logged in, display a button for login
+    # If user is not logged in, display a button for login
     else:
-        #TODO: Change this button appearance
+        # TODO: Change this button appearance
         return jsonify({"error": "User not logged in"}), 200
-        #return redirect(url_for("login"))
+        # return redirect(url_for("login"))
 
-#Local user register
+
+# Local user register
 @app.route("/localRegister", methods=["POST"])
 def register_user():
     email = request.json["email"]
@@ -122,7 +128,8 @@ def register_user():
 
     return "200"
 
-#Local user login
+
+# Local user login
 @app.route("/localLogin", methods=["POST"])
 def local_login_user():
     email = request.json["email"]
@@ -140,24 +147,25 @@ def local_login_user():
 
     return "200"
 
-#User Login
+
+# User Login
 @app.route("/googleLogin", methods=["POST"])
 def login():
-    #get authorization endpoint
-        # provider_config = get_google_provider_cfg()
-        # auth_endpoint = provider_config["authorization_endpoint"]
+    # get authorization endpoint
+    # provider_config = get_google_provider_cfg()
+    # auth_endpoint = provider_config["authorization_endpoint"]
 
-        # auth_uri = client.prepare_request_uri(
-        #     auth_endpoint,
-        #     redirect_uri=request.base_url + "/callback",
-        #     scope=["openid", "email", "profile"],
-        # )
+    # auth_uri = client.prepare_request_uri(
+    #     auth_endpoint,
+    #     redirect_uri=request.base_url + "/callback",
+    #     scope=["openid", "email", "profile"],
+    # )
 
-        # return jsonify({"uri": auth_uri}), 200 
-    #return redirect(auth_uri)
-    #return redirect(url_for("home"))
+    # return jsonify({"uri": auth_uri}), 200
+    # return redirect(auth_uri)
+    # return redirect(url_for("home"))
 
-    #New version
+    # New version
     username = request.json["username"]
     email = request.json["email"]
     picture = request.json["picture"]
@@ -173,19 +181,19 @@ def login():
     return "200"
 
 
-#Get information from Google
+# Get information from Google
 @app.route("/login/callback")
 def login_callback():
     auth_code = request.args.get("code")
     provider_config = get_google_provider_cfg()
     token_endpoint = provider_config["token_endpoint"]
 
-    #prepare token and sent request to get the token
+    # prepare token and sent request to get the token
     token_url, headers, data = client.prepare_token_request(
         token_endpoint,
         authorization_response=request.url,
         redirect_url=request.base_url,
-        code=auth_code
+        code=auth_code,
     )
     token_response = requests.post(
         token_url,
@@ -194,15 +202,15 @@ def login_callback():
         auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
     )
 
-    #Get the token
+    # Get the token
     client.parse_request_body_response(json.dumps(token_response.json()))
 
-    #get user information from Google
+    # get user information from Google
     userinfo_endpoint = provider_config["userinfo_endpoint"]
     info_uri, headers, data = client.add_token(userinfo_endpoint)
     info_response = requests.get(info_uri, headers=headers, data=data)
 
-    #verify user information
+    # verify user information
     if info_response.json().get("email_verified"):
         email = info_response.json()["email"]
         picture = info_response.json()["picture"]
@@ -218,28 +226,33 @@ def login_callback():
 
     return redirect(url_for("home"))
 
-#User Logout     
+
+# User Logout
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
+    # TODO: seems not working when logging out
+    session.pop("selected_group", None)
     return "200"
+
 
 # extract receipt information
 # TODO Need to be tested when connected with frontend
 # extract receipt information
-@app.route("/scan", methods = ['POST'])
+@app.route("/scan", methods=["POST"])
 def scan_receipt():
     # assume the image get from the client is
-    # a list that contains RBG values 
-    receipt_img_binary = request.files['receipt'].read()
+    # a list that contains RBG values
+    receipt_img_binary = request.files["receipt"].read()
     img = Image.open(BytesIO(receipt_img_binary))
-    results = ((pytesseract.image_to_string(img,
-                config=options, lang='eng'))).split('\n')
-      
+    results = ((pytesseract.image_to_string(img, config=options, lang="eng"))).split(
+        "\n"
+    )
+
     outputs = []
     for index, product in enumerate(results):
-        results[index] = product.split(' ')
+        results[index] = product.split(" ")
         # Walmart receipt's items have at least 3 columns (name, quantity, price)
         if len(results[index]) >= 3:
             processed_line = utilities.parsing_lang(results[index])
@@ -247,29 +260,28 @@ def scan_receipt():
                 outputs.append(utilities.parsing_lang(results[index]))
 
     # print(outputs)
-    return jsonify(receipt_text = outputs)
+    return jsonify(receipt_text=outputs)
 
-# FIXME: should use the above statement, this is temporary
-selected_group = None
-@app.route("/scan_confirm", methods = ['POST'])
+
+@app.route("/scan_confirm", methods=["POST"])
 def scan_confirm():
     total_amount = 0
     bill_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
-    #TODO: handle case when user is not logged in
+    # TODO: handle case when user is not logged in
     creator = current_user.email
     for _, item in request.json.items():
-        total_amount += float(item['amount']) * float(item['price'])
+        total_amount += float(item["amount"]) * float(item["price"])
     # TODO: add description in frontend
     # description = request.json['description']
 
     # Bill.create(bill_date, creator, current_user.current_group, total_amount, description)
-    Bill.create(bill_date, creator, selected_group, total_amount, "")
-    
+    Bill.create(bill_date, creator, session.get('selected_group', None), total_amount, "")
+
     # group_name = current_user.current_group
-    group_name = selected_group
+    group_name = session.get('selected_group', None)
     group = Group.get(group_name)
 
-    #Get member list and bill list
+    # Get member list and bill list
     member_dict = group.list_members()
     bill_list = group.list_bills()
 
@@ -279,9 +291,11 @@ def scan_confirm():
 
     for bill_date in bill_list:
         bill = Bill.get(bill_date)
-        new_dict = even_splitter(bill.amount, balance_dict, bill.payer, current_user.email)
+        new_dict = even_splitter(
+            bill.amount, balance_dict, bill.payer, current_user.email
+        )
         balance_dict.update(new_dict)
- 
+
     del balance_dict[current_user.email]
 
     print(balance_dict)
@@ -289,36 +303,37 @@ def scan_confirm():
     return jsonify(balance_dict)
 
 
-#Create a new group
-@app.route("/create_group", methods = ['POST'])
+# Create a new group
+@app.route("/create_group", methods=["POST"])
 def create_group():
     group_name = request.json["group_name"]
     if Group.get(group_name) != None:
         return "409"
-    
+
     # check empty group name
     status = Group.create(group_name)
     if status == None:
         return "409"
-    
-    #Add user to the created group
+
+    # Add user to the created group
     User.add_to_group(current_user.email, group_name)
 
     return "200"
 
-#Add user to group
-@app.route("/add_to_group", methods = ['POST'])
+
+# Add user to group
+@app.route("/add_to_group", methods=["POST"])
 def add_user_to_group():
     group_name = request.json["group_name"]
 
-    #Check if user logged in 
+    # Check if user logged in
     if not current_user.is_authenticated:
         return jsonify({"error": "User not logged in"}), 409
-    
-    #Check if group exists
+
+    # Check if group exists
     if Group.get(group_name) == None:
-        return jsonify({"error": "Group not exist"}), 409
-    
+        return jsonify({"error": "Group not exists"}), 409
+
     if User.user_in_group(current_user.email, group_name):
         return jsonify({"error": "User already in the group"}), 409
 
@@ -326,46 +341,45 @@ def add_user_to_group():
     return "200"
 
 
-#Select the user's current group
-@app.route("/select_group", methods = ['POST', 'GET'])
+# Select the user's current group
+@app.route("/select_group", methods=["POST", "GET"])
 def select_group():
-    global selected_group
-    #If method is POST, set the current group to the selected group
-    if request.method == 'POST':
+    # If method is POST, set the current group to the selected group
+    if request.method == "POST":
         group_name = request.json["group_name"]
-        #Check if group exists
+        # Check if group exists
         if Group.get(group_name) == None:
             return jsonify({"error": "Group not exist"}), 409
 
-        #Check if user is in the group
+        # Check if user is in the group
         if not User.user_in_group(current_user.email, group_name):
             return jsonify({"error": "User is not in the group"}), 409
 
         current_user.current_group = group_name
         # FIXME: should use the above statement, this is temporary
-        selected_group = group_name
+        session['selected_group'] = group_name
         return "200"
-    #Else, check if the current group is set
-    elif request.method == 'GET':
-        #If user has no current group, return 409
+    # Else, check if the current group is set
+    elif request.method == "GET":
+        # If user has no current group, return 409
         # FIXME: should use the above statement, this is temporary
-        if current_user.current_group == None and selected_group == None:
+        if session.get('selected_group', None) == None:
             return "409"
         else:
             # FIXME: should use the above statement, this is temporary
-            return jsonify(selected_group), 200
-        
-        
-#Show group members and each member's balance
-@app.route("/show_members_info", methods = ['POST'])
+            return jsonify(session['selected_group']), 200
+
+
+# Show group members and each member's balance
+@app.route("/show_members_info", methods=["POST"])
 def list_members_and_balance():
     group_name = request.json["group_name"]
-    #Check if group exist
+    # Check if group exist
     group = Group.get(group_name)
     if group == None:
         return jsonify({"error": "Group not exist"}), 409
 
-    #Get member list and bill list
+    # Get member list and bill list
     member_list = group.list_members()
     bill_list = group.list_bills()
 
@@ -375,7 +389,9 @@ def list_members_and_balance():
 
     for bill_date in bill_list:
         bill = Bill.get(bill_date)
-        new_dict = even_splitter(bill.amount, balance_dict, bill.payer, current_user.username)
+        new_dict = even_splitter(
+            bill.amount, balance_dict, bill.payer, current_user.username
+        )
         balance_dict.update(new_dict)
 
     balance_dict = balance_dict.pop(current_user.username)
@@ -383,33 +399,35 @@ def list_members_and_balance():
     return jsonify(balance_dict)
 
 
-#Remove user from group
-@app.route("/remove_from_group", methods = ['POST'])
+# Remove user from group
+@app.route("/remove_from_group", methods=["POST"])
 def remove_user_from_group():
     user_email = request.json["user_email"]
     group_name = request.json["group_name"]
-    #Check if user and group exists
+    # Check if user and group exists
     if User.get(user_email) == None:
         return jsonify({"error": "User not exist"}), 409
     if Group.get(group_name) == None:
         return jsonify({"error": "Group not exist"}), 409
     if not User.user_in_group(user_email, group_name):
         return jsonify({"error": "User is not in the group"}), 409
-    
+
     User.remove_from_group(user_email, group_name)
     return "200"
 
-@app.route("/show_user_groups", methods = ['GET'])
+
+@app.route("/show_user_groups", methods=["GET"])
 def show_user_groups():
-    #Check if user logged in 
+    # Check if user logged in
     if not current_user.is_authenticated:
         return jsonify({"error": "User not logged in"}), 409
-    
+
     group_list = User.load_relevent_groups(current_user.email)
 
     return jsonify(group_list), 200
 
-@app.route("/get_group_info", methods = ['POST'])
+
+@app.route("/get_group_info", methods=["POST"])
 def get_group_info():
     group_name = request.json["group_name"]
     group = Group.get(group_name)
@@ -417,20 +435,22 @@ def get_group_info():
         return jsonify({"error": "Group not exist"}), 409
     return jsonify(group.to_dict())
 
-#Show group members
-@app.route("/show_members", methods = ['GET'])
+
+# Show group members
+@app.route("/show_members", methods=["GET"])
 def list_members():
     group_name = request.json["group_name"]
-    #Check if group exist
+    # Check if group exist
     group = Group.get(group_name)
     if group == None:
         return jsonify({"error": "Group not exist"}), 409
-    
+
     member_list = group.list_members()
     return jsonify(member_list)
 
-#Create a new bill
-@app.route("/create_bill", methods = ['POST'])
+
+# Create a new bill
+@app.route("/create_bill", methods=["POST"])
 def create_bill():
     bill_name = request.json["bill_name"]
     if Bill.get(bill_name) != None:
@@ -438,17 +458,19 @@ def create_bill():
     Bill.create(bill_name)
     return "200"
 
-#Show all bills in a group
-@app.route("/show_bill", methods = ['POST'])
+
+# Show all bills in a group
+@app.route("/show_bill", methods=["POST"])
 def list_bills():
     group_name = request.json["group_name"]
-    #Check if group exist
+    # Check if group exist
     group = Group.get(group_name)
     if group == None:
         return jsonify({"error": "Group not exist"}), 409
-    
+
     bill_list = group.list_bills()
     return jsonify(bill_list)
+
 
 if __name__ == "__main__":
     app.run(ssl_context="adhoc", debug=True)

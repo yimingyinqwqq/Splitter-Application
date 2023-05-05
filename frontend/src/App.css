@@ -115,3 +115,13 @@ body {
 .add-group-container {
   flex: 1;
 } */
+
+/* scan receipt */
+.scan-button {
+  background-color: #4CAF50;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 20px;
+  border: none;
+  padding: 10px 20px;
+}
