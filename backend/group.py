@@ -54,7 +54,7 @@ class Group:
     def list_bills(self):
         db = get_db()
         bills = db.execute(
-            "SELECT bill.name FROM bill JOIN group WHERE group_name = ?",
+            "SELECT bill.bill_date FROM bill JOIN group WHERE group_name = ?",
             (self.group_name,)
         )
         if not bills:
