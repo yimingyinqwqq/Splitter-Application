@@ -272,8 +272,9 @@ def create_group():
     group_name = request.json["group_name"]
     if Group.get(group_name) != None:
         return "409"
-    Group.create(group_name)
-
+    status = Group.create(group_name)
+    if status == None:
+        return "409"
     #Add user to the created group
     User.add_to_group(current_user.email, group_name)
 
