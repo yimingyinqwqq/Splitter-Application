@@ -79,6 +79,14 @@ def test_load_relevent_groups(client, db):
     assert response.status_code == 200
     assert response.get_json() == ['jeff_group']
 
+def test_select_group(client, db):
+    client.post('/localLogin', json={'email': 'jeff@gmail' , 'password': "testuser123!"})
+    response = client.post('/select_group', json={'group_name': "jeff_group"})
+    assert response.status_code == 200
+    response_2 = client.get('/select_group')
+    assert response_2.status_code == 200
+    # assert response_2.get_json() == {'group_name': 'jeff_group'}
+
 def test_remove_from_group(client, db):
     response = client.post('/remove_from_group', json={'user_email': 'jeff@gmail' , 'group_name': "jeff_group"})
     assert response.status_code == 200

@@ -27,7 +27,7 @@ class Bill:
     def create(date, payer, group_name, amount, description):
         db = get_db()
         db.execute(
-            "INSERT INTO chatgroup (date, payer, group_name, amount,  description) "
+            "INSERT INTO bill (bill_date, payer, group_name, amount,  description) "
             "VALUES (?, ?, ?, ?, ?)",
             (date, payer, group_name, amount, description)
         )
