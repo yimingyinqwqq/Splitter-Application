@@ -260,7 +260,26 @@ def scan_confirm():
     description = request.json['description']
 
     Bill.create(bill_date, creator, current_user.current_group, total_amount, description)
-    return "200"
+    
+    group_name = current_user.current_group
+    group = Group.get(group_name)
+
+    #Get member list and bill list
+    member_list = group.list_members()
+    bill_list = group.list_bills()
+
+    balance_dict = {}
+    for member in member_list:
+        balance_dict[member] = 0
+
+    for bill_date in bill_list:
+        bill = Bill.get(bill_date)
+        new_dict = even_splitter(bill.amount, balance_dict, bill.payer, current_user.username)
+        balance_dict.update(new_dict)
+
+    balance_dict = balance_dict.pop(current_user.username)
+
+    return jsonify(balance_dict)
 
 
 #Create a new group
@@ -302,21 +321,22 @@ def add_user_to_group():
 #Select the user's current group
 @app.route("/select_group", methods = ['POST'])
 def select_group():
-    #Check if group exists
-    if Group.get(group_name) == None:
-        return jsonify({"error": "Group not exist"}), 409
-
-    #Check if user is in the group
-    if not User.user_in_group(current_user.email, group_name):
-        return jsonify({"error": "User is not in the group"}), 409
-    
     #If method is POST, set the current group to the selected group
     if request.method == 'POST':
         group_name = request.json["group_name"]
+        #Check if group exists
+        if Group.get(group_name) == None:
+            return jsonify({"error": "Group not exist"}), 409
+
+        #Check if user is in the group
+        if not User.user_in_group(current_user.email, group_name):
+            return jsonify({"error": "User is not in the group"}), 409
+
         current_user.current_group = group_name
         return "200"
     #Else, check if the current group is set
     else:
+        #If user has no current group, return 409
         if current_user.current_group == None:
             return "409"
         else:
