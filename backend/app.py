@@ -37,6 +37,7 @@ from db import init_db_command
 from user import User
 from group import Group
 from bill import Bill
+from bill_split import even_splitter
 
 #google configuration
 #Configuration
@@ -258,9 +259,6 @@ def scan_confirm():
         total_amount += item['amount'] * item['price']
     description = request.json['description']
 
-    if current_user.current_group == None:
-        return jsonify({"error": "User is not in a group"}), 409
-
     Bill.create(bill_date, creator, current_user.current_group, total_amount, description)
     return "200"
 
@@ -271,9 +269,12 @@ def create_group():
     group_name = request.json["group_name"]
     if Group.get(group_name) != None:
         return "409"
+    
+    # check empty group name
     status = Group.create(group_name)
     if status == None:
         return "409"
+    
     #Add user to the created group
     User.add_to_group(current_user.email, group_name)
 
@@ -291,9 +292,63 @@ def add_user_to_group():
     #Check if group exists
     if Group.get(group_name) == None:
         return jsonify({"error": "Group not exist"}), 409
+    
+    if User.user_in_group(current_user.email, group_name):
+        return jsonify({"error": "User already in the group"}), 409
 
     User.add_to_group(current_user.email, group_name)
     return "200"
+
+#Select the user's current group
+@app.route("/select_group", methods = ['POST'])
+def select_group():
+    #Check if group exists
+    if Group.get(group_name) == None:
+        return jsonify({"error": "Group not exist"}), 409
+
+    #Check if user is in the group
+    if not User.user_in_group(current_user.email, group_name):
+        return jsonify({"error": "User is not in the group"}), 409
+    
+    #If method is POST, set the current group to the selected group
+    if request.method == 'POST':
+        group_name = request.json["group_name"]
+        current_user.current_group = group_name
+        return "200"
+    #Else, check if the current group is set
+    else:
+        if current_user.current_group == None:
+            return "409"
+        else:
+            return "200"
+        
+#Show group members and each member's balance
+@app.route("/show_members_info", methods = ['POST'])
+def list_members():
+    group_name = request.json["group_name"]
+    #Check if group exist
+    group = Group.get(group_name)
+    if group == None:
+        return jsonify({"error": "Group not exist"}), 409
+
+    #Get member list and bill list
+    member_list = group.list_members()
+    bill_list = group.list_bills()
+
+
+    balance_dict = {}
+    for member in member_list:
+        balance_dict[member] = 0
+
+    for bill_date in bill_list:
+        bill = Bill.get(bill_date)
+        new_dict = even_splitter(bill.amount, balance_dict, bill.payer, current_user.username)
+        balance_dict.update(new_dict)
+
+    balance_dict = balance_dict.pop(current_user.username)
+
+    return jsonify(balance_dict)
+
 
 #Remove user from group
 @app.route("/remove_from_group", methods = ['POST'])
