@@ -1,6 +1,6 @@
 // followed the tutorial from https://medium.com/web-dev-survey-from-kyoto/how-to-customize-the-file-upload-button-in-react-b3866a5973d8
 // and https://stackoverflow.com/questions/38049966/get-image-preview-before-uploading-in-react
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "react-bootstrap/Button"
 import Form from 'react-bootstrap/Form';
@@ -14,16 +14,45 @@ const FileUploader = () => {
     const [preview, setPreview] = useState(null);
     const [scanning, setScanning] = useState(false);
     const [receiptData, setReceiptData] = useState([]);
+    const [selectedGroup, setSelectedGroup] = useState("");                                 // current group user is selected
+
+    useEffect(() => {
+        // fetch from the backend the selected group name
+        fetch('/select_group', {
+            method: 'GET',
+            mode: 'cors',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText)
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                console.log("selected group is: ", data);
+                setSelectedGroup(data);
+            })
+            .catch(err => {
+                console.log(err)
+            })
+
+        
+    }, []);
 
     // Programatically click the hidden file input element
     const handleClick = (e) => {
-        hiddenFileInput.current.click();
+        if (selectedGroup === "") {
+            alert("Select your group first!");
+        } else {
+            hiddenFileInput.current.click();
+        }
     };
 
     // handle the user-selected file 
     const handleUpload = (e) => {
         e.preventDefault();
-        
+
         // check if no file selected
         if (!e.target.files || e.target.files.length === 0) {
             return;
@@ -81,7 +110,6 @@ const FileUploader = () => {
                     });
                 });
             })
-
             .catch(err => {
                 console.log(err)
             })
@@ -121,11 +149,11 @@ const FileUploader = () => {
         // }
 
         // send the confirm scanning result to the backend
-        
+
         fetch('/scan_confirm', {
             method: 'POST',
             mode: 'cors',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(scanForms)
         })
             .then(() => {
@@ -138,6 +166,8 @@ const FileUploader = () => {
 
     return (
         <div className="dashboard">
+            <p className='scanning-section-text'> Scanning receipt </p>
+
             {scanning ? (
                 <>
                     <h1>Receipt Data:</h1>

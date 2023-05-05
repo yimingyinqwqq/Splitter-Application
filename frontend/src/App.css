@@ -82,6 +82,7 @@ body {
 }
 
 .scanning-section-text {
+  margin-top: -10%;
   font-size: 3rem;
   font-weight: 200;
   color: rgb(0, 0, 0);
@@ -90,6 +91,11 @@ body {
 .fileUploader-container {
   justify-content: center;
   align-items: center;
+}
+
+.group-section {
+  display: inline-block;
+  width: 100%;
 }
 
 .group-function-container {

@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import Button from "react-bootstrap/Button"
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import ListGroup from 'react-bootstrap/ListGroup';
 
 const Group = () => {
+    const navigate = useNavigate();
     const [creatGroupName, setCreatGroupName] = useState("");
-    const [findGroupName, setFindGroupName] = useState("");
+    const [joinGroupName, setJoinGroupName] = useState("");
     const [isCreatGroupNameValid, setIsCreatGroupNameValid] = useState(true);
-    const [isFindGroupNameValid, setIsFindGroupNameValid] = useState(true);
+    const [isJoinGroupNameValid, setIsJoinGroupNameValid] = useState(true);
     const [userGroups, setUserGroups] = useState([]);                                         // all groups that the current user is in
-    const [selectedGroup, setSelectedGroup] = useState(null);                                 // current group user is selected
+
 
     useEffect(() => {
         fetch('/show_user_groups', {
@@ -44,14 +46,12 @@ const Group = () => {
         setCreatGroupName(e.target.value);
     }
 
-    const handleFindGroupFormChange = (e) => {
+    const handleJoinGroupFormChange = (e) => {
         e.preventDefault();
-        setFindGroupName(e.target.value);
+        setJoinGroupName(e.target.value);
     }
 
     const handleCreateGroup = (e) => {
-        e.preventDefault();
-
         fetch('/create_group', {
             method: 'POST',
             mode: 'cors',
@@ -81,13 +81,11 @@ const Group = () => {
     }
 
     const handleAddGroup = (e) => {
-        e.preventDefault();
-
         fetch('/add_to_group', {
             method: 'POST',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ "group_name": findGroupName })
+            body: JSON.stringify({ "group_name": joinGroupName })
         })
             .then(response => {
                 if (!response.ok) {
@@ -99,11 +97,11 @@ const Group = () => {
             .then(data => {
                 if (data === 200) {
                     console.log("200");
-                    setIsFindGroupNameValid(true);
+                    setIsJoinGroupNameValid(true);
                 } else if (data === 409) {
                     // group name not found
                     console.log("409");
-                    setIsFindGroupNameValid(false);
+                    setIsJoinGroupNameValid(false);
                 }
             })
             .catch(err => {
@@ -112,65 +110,83 @@ const Group = () => {
 
     }
 
-    const handleGroupSelection = (e) => {
+    // handle when user select a group
+    const handleGroupSelection = (e, item) => {
         e.preventDefault();
-        setSelectedGroup(e.target.id);
+
+        console.log("item is: ", item);
+        
+        // tell backend the selected group name
+        fetch('/select_group', {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(item)
+        })
+
+        navigate('/dashboard/scan', { replace: true });
     }
 
     return (
-        <div className="group-function-container">
-            <ListGroup className="group-container">
-                {userGroups.length === 0 ? (
-                    <>
-                        <ListGroup.Item variant="danger">
-                            Add one group first
-                        </ListGroup.Item>
-                    </>
-                ) : (
-                    <>
-                        {userGroups.map((item, index) => (
-                            <ListGroup.Item key={index} id={"group" + index} action onClick={handleGroupSelection} variant="warning">
-                                {item}
-                            </ListGroup.Item>
-                        ))}
-                    </>
-                )}
+        <>
+            <p className='scanning-section-text'> Welcome to your Dashboard</p>
 
-                {/* <ListGroup.Item action variant="primary">
+            <div className="group-function-container">
+
+
+                <ListGroup className="group-container">
+                    {userGroups.length === 0 ? (
+                        <>
+                            <ListGroup.Item variant="danger">
+                                Add one group first
+                            </ListGroup.Item>
+                        </>
+                    ) : (
+                        <>
+                            {userGroups.map((item, index) => (
+                                <ListGroup.Item key={index} id={"group" + index} action onClick={(e) => handleGroupSelection(e, item)} variant="warning">
+                                    {item}
+                                </ListGroup.Item>
+                            ))}
+                        </>
+                    )}
+
+                    {/* <ListGroup.Item action variant="primary">
                     Select this group
                 </ListGroup.Item> */}
-            </ListGroup>
+                </ListGroup>
 
-            <Form className="create-group-container">
-                <InputGroup className="mb-3" hasValidation>
-                    <Form.Control
-                        required
-                        type="text"
-                        placeholder="Create your group name"
-                        value={creatGroupName}
-                        onChange={handleCreateGroupFormChange}
-                        isInvalid={!isCreatGroupNameValid}
-                    />
-                    <Form.Control.Feedback type="invalid"> The group name has been taken! </Form.Control.Feedback>
-                </InputGroup>
-                <Button type="submit" onClick={handleCreateGroup}> Create Group </Button>
-            </Form>
+                <Form className="create-group-container">
+                    <InputGroup className="mb-3" hasValidation>
+                        <Form.Control
+                            required
+                            type="text"
+                            placeholder="Create your group name"
+                            value={creatGroupName}
+                            onChange={handleCreateGroupFormChange}
+                            isInvalid={!isCreatGroupNameValid}
+                        />
+                        <Form.Control.Feedback type="invalid"> The group name has been taken! </Form.Control.Feedback>
+                    </InputGroup>
+                    <Button type="submit" onClick={handleCreateGroup}> Create Group </Button>
+                </Form>
 
-            <Form className="add-group-container">
-                <InputGroup className="mb-3" hasValidation>
-                    <Form.Control
-                        required
-                        type="text"
-                        placeholder="Enter your group name"
-                        value={findGroupName}
-                        onChange={handleFindGroupFormChange}
-                        isInvalid={!isFindGroupNameValid}
-                    />
-                    <Form.Control.Feedback type="invalid"> The group does not exist! </Form.Control.Feedback>
-                </InputGroup>
-                <Button type="submit" onClick={handleAddGroup}> Add Group </Button>
-            </Form>
-        </div>
+                <Form className="add-group-container">
+                    <InputGroup className="mb-3" hasValidation>
+                        <Form.Control
+                            required
+                            type="text"
+                            placeholder="Enter your group name"
+                            value={joinGroupName}
+                            onChange={handleJoinGroupFormChange}
+                            isInvalid={!isJoinGroupNameValid}
+                        />
+                        <Form.Control.Feedback type="invalid"> The group does not exist! </Form.Control.Feedback>
+                    </InputGroup>
+                    <Button type="submit" onClick={handleAddGroup}> Join Group </Button>
+                </Form>
+            </div>
+        </>
     );
 }
 
