@@ -21,7 +21,6 @@ from flask_login import (
     logout_user,
 )
 import pytesseract
-import cv2
 import utilities
 from datetime import date, datetime
 
