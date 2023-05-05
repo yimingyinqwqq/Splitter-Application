@@ -25,6 +25,14 @@ def list_user_group():
     for row in user_group:
         print(row[0], row[1])
 
+def list_bills():
+    bills = db.execute(
+        "SELECT * FROM bill"
+    ).fetchall()
+    print("List of bills:")
+    for bill in bills:
+        print(bill[0], bill[1], bill[2], bill[3])
+
 def rm_group(name):
     db.execute(
         "DELETE FROM chatgroup WHERE group_name = ?",
@@ -72,6 +80,11 @@ def rm_user_from_group(email, group_name):
     db.commit()
     print("Removed user " + email + " from group " + group_name)
 
+def rm_all_bills():
+    db.execute("DELETE FROM bill")
+    db.commit()
+    print("Removed all bills")
+
 if __name__ == "__main__":
     db = sqlite3.connect(
         "my_db",
@@ -84,6 +97,8 @@ if __name__ == "__main__":
     list_users()
     list_groups()
     list_user_group()
+    list_bills()
 
+    # rm_all_bills()
     # rm_all_users()
 

@@ -270,19 +270,19 @@ def scan_confirm():
     group = Group.get(group_name)
 
     #Get member list and bill list
-    member_list = group.list_members()
+    member_dict = group.list_members()
     bill_list = group.list_bills()
 
     balance_dict = {}
-    for member in member_list:
-        balance_dict[member] = 0
+    for email in member_dict:
+        balance_dict[email] = 0
 
     for bill_date in bill_list:
         bill = Bill.get(bill_date)
-        new_dict = even_splitter(bill.amount, balance_dict, bill.payer, current_user.username)
+        new_dict = even_splitter(bill.amount, balance_dict, bill.payer, current_user.email)
         balance_dict.update(new_dict)
-
-    balance_dict = balance_dict.pop(current_user.username)
+ 
+    del balance_dict[current_user.email]
 
     print(balance_dict)
 
@@ -368,7 +368,6 @@ def list_members_and_balance():
     #Get member list and bill list
     member_list = group.list_members()
     bill_list = group.list_bills()
-
 
     balance_dict = {}
     for member in member_list:

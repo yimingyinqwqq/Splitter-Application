@@ -35,21 +35,21 @@ class Group:
         )
         db.commit()
         return name
-
+    
     def list_members(self):
         db = get_db()
         members = db.execute(
-            "SELECT user.name FROM user JOIN user_group ON user.email = user_group.user_email WHERE group_name = ?",
+            "SELECT user.email, user.name FROM user JOIN user_group ON user.email = user_group.user_email WHERE group_name = ?",
             (self.group_name,)
         )
         if not members:
             return None
         
-        member_list = []
+        member_dict = {}
         for row in members:
-            member_list.append(row[0])
+            member_dict[row[0]] = row[1]
         
-        return member_list
+        return member_dict
     
     def list_bills(self):
         db = get_db()
