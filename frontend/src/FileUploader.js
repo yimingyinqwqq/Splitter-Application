@@ -37,7 +37,7 @@ const FileUploader = () => {
                 console.log(err)
             })
 
-        
+
     }, []);
 
     // Programatically click the hidden file input element
@@ -156,7 +156,16 @@ const FileUploader = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(scanForms)
         })
-            .then(() => {
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText)
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                console.log("scan confirm is : ", data);
+
             })
             .catch(err => {
                 console.log(err)

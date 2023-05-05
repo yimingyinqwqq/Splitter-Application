@@ -249,10 +249,12 @@ def scan_receipt():
     # print(outputs)
     return jsonify(receipt_text = outputs)
 
+# FIXME: should use the above statement, this is temporary
+selected_group = None
 @app.route("/scan_confirm", methods = ['POST'])
 def scan_confirm():
     total_amount = 0
-    bill_date = date.today().strftime("%m/%d/%Y %H:%M:%S")
+    bill_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
     #TODO: handle case when user is not logged in
     creator = current_user.email
     for _, item in request.json.items():
@@ -261,9 +263,10 @@ def scan_confirm():
     # description = request.json['description']
 
     # Bill.create(bill_date, creator, current_user.current_group, total_amount, description)
-    Bill.create(bill_date, creator, current_user.current_group, total_amount, "")
+    Bill.create(bill_date, creator, selected_group, total_amount, "")
     
-    group_name = current_user.current_group
+    # group_name = current_user.current_group
+    group_name = selected_group
     group = Group.get(group_name)
 
     #Get member list and bill list
@@ -280,6 +283,8 @@ def scan_confirm():
         balance_dict.update(new_dict)
 
     balance_dict = balance_dict.pop(current_user.username)
+
+    print(balance_dict)
 
     return jsonify(balance_dict)
 
@@ -320,8 +325,7 @@ def add_user_to_group():
     User.add_to_group(current_user.email, group_name)
     return "200"
 
-# FIXME: should use the above statement, this is temporary
-selected_group = None
+
 #Select the user's current group
 @app.route("/select_group", methods = ['POST', 'GET'])
 def select_group():
