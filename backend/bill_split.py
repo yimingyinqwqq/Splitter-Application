@@ -1,61 +1,37 @@
-'''
-When you need to split a bill among a group of people, you will typically need 
-to calculate the following:
-
-1. Total amount of the bill: This is the sum of all the items on the bill, including 
-tax and tip (if applicable).
-2. Number of people: This is the total number of individuals who will be splitting the bill.
-Subtotal per person: Divide the total amount of the bill by the number of people to 
-determine the subtotal that each person will need to pay.
-3. Tip per person (optional): If the group decides to leave a tip, divide the total tip 
-amount by the number of people to determine the tip amount per person.
-4. Final total per person: Add the subtotal per person and the tip per person (if applicable) 
-to determine the final total amount that each person will need to pay.
-It's worth noting that if the group decides to split the bill unevenly, you will need to 
-calculate the amount owed by each person based on the items they ordered, rather than simply 
-dividing the bill equally.
-'''
-
-def even_splitter(total_amount, people_list, tip_amount = 0):
+def even_splitter(total_amount, balance_dict, payer, me):
     '''
-    this function takes three inputs: total_amount, num_people, even_tip, and outputs the amount
-    of money for each person
-
     parameters:
     total_amount: total amount of the bill [double type], 
-    people_list: a list of people to split the bill [list type with integer objects], 
-    tip_amount: if we have tip, we evenly split the tip
+    balance_dict: a dictionary of balance info, where keys are all people, values are each person's balance [dictionary type with string key and double value],
+    payer: the person who pays the bill [string type],
+    me: the person who uses the app [string type],
+
+    return:
+    output_dict: a dictionary of the updated balance info with the same format as balance_dict [dictionary type with string key and double value]
 
     example:
-    >>>even_splitter(678, [tom, jeff, cat], 33)
-    237
-    >>>even_splitter(678, [tom, jeff, cat])
-    226
+    >>>even_splitter(600, {tom:0, jeff:0, cat:0}, jeff, jeff)
+    {'tom': 200.0, 'cat': 200.0}
+    
+    >>>even_splitter(600, {tom:0, jeff:0, cat:0}, tom, jeff)
+    {'tom': -200, 'cat': 0.0}
     '''
-    output = (total_amount + tip_amount)/ len(people_list)
-    return output
+    split_money = total_amount / len(balance_dict)
 
-def non_even_splitter(order_dict, total_money, tip_amount = 0):
-    '''
-    this function takes three inputs: total_amount, num_people, even_tip, and outputs the dictionary
-    recording the money to pay for each person
+    output_dict = {}
 
-    parameters:
-    order_dict: the dictionary recording the orderer and dish price [dictionary], 
-    total_money: the original bill except for the tip, 
-    tip_amount: if we have tip, we split the tip proportionally based on the order of each person [double]
+    if payer == me:
+        for person in balance_dict.keys():
+            if person != me:
+                output_dict[person] = balance_dict[person] + split_money
+    else:
+        for person in balance_dict.keys():
+            if person == payer:
+                output_dict[person] = balance_dict[person] - split_money
+            elif person != me:
+                output_dict[person] = balance_dict[person]
 
-    example:
-    >>>even_splitter({'tom': [23, 30], 'jeff': [18], 'cat': [80]}, 151, 33)
-    {'tom': 64.58278145695364,'jeff': 21.933774834437088,'cat': 97.48344370860927}
-
-    >>>even_splitter({'tom': [23, 30], 'jeff': [18], 'cat': [80]}, 151)
-    {'tom': 53.0, 'jeff': 18.0, 'cat': 80.0}
-    '''
-    output = {}
-    for key, value in order_dict.items():
-        output[key] = sum(value) + sum(value)/total_money*tip_amount
-    return output
+    return output_dict
 
 
     
