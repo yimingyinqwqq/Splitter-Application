@@ -26,7 +26,12 @@ opencv-python
 ```
 
 ## Usage
-
+![alt text](1.jpg)
+The above image shows the scanning image page
+![alt text](2.jpg)
+The above image is the result after scanning by pytesseract CV API
+![alt text](3.jpg)
+The above image is the result of splitter on each person
 
 
 ## Contributing
