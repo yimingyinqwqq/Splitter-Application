@@ -5,8 +5,17 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Button from "react-bootstrap/Button"
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
+
 const NavBar = () => {
     const [userName, setUserName] = useState("");
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+    // the navbar will show in mobile view if the width of the page decreases to certain amount of pixels
+    const handleShowMobileMenu = () => {
+        setShowMobileMenu(!showMobileMenu);
+    }
 
     useEffect(() => {
         // fetch from the backend the User Name
@@ -39,16 +48,18 @@ const NavBar = () => {
 
     return (
         <>
-            <Navbar className='navbar-container' variant="dark" expand='lg'>
-                <Container>
+            <Navbar className="navbar-container" variant="dark" expand='lg'>
+                <Container className={`navbar-mobile-item ${showMobileMenu && 'active'}`}>
                     <Nav>
                         <Nav.Link as={Link} to="/dashboard" > Dashboard </Nav.Link>
                         <Nav.Link as={Link} to="/dashboard/scan" > Scan </Nav.Link>
                     </Nav>
+
                     {/* TODO: change margintop */}
-                    <p style={{ marginLeft: "40rem", marginTop: "1rem", color: "#fff" }}> Account: {userName} </p>
+                    <p> Account: {userName} </p>
                     <Button onClick={handleLogout}> Logout </Button>
                 </Container>
+                <FontAwesomeIcon className="mobile-menu-icon" icon={showMobileMenu ? faTimes : faBars} onClick={handleShowMobileMenu} />
             </Navbar>
         </>
     );
