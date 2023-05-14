@@ -13,6 +13,7 @@ body {
   align-items: center;
   background-color: #f887b6;
   background: linear-gradient(90deg, rgb(255, 156, 189) 0%, rgb(247, 182, 182) 100%);
+  /* overflow-y: scroll; */
 }
 
 #main-holder {
@@ -204,6 +205,39 @@ body {
   flex: 1;
 } */
 
+.group-box {
+  display: flex;
+  width: 40vw;
+  height: 50vh;
+  border: 6px solid #deeb26;
+  border-radius: 10px;
+  padding: 1px;
+  background-color: #fff;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+}
+
+.group-box-left {
+  width: 20vw;
+  background-color: #f0f0f0;
+  overflow-y: scroll;
+  /* padding-left: 15px;
+  padding-right: 15px; */
+}
+
+.group-box-left::-webkit-scrollbar {
+  display: none;
+}
+
+.group-box-right {
+  flex-grow: 1;
+  width: 20vw;
+  background-color: #ffffff;
+  color: #1a0303;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 /* scan receipt */
 .scan-button {
   background-color: #4CAF50;
@@ -212,4 +246,16 @@ body {
   border-radius: 20px;
   border: none;
   padding: 10px 20px;
+}
+
+
+/* history */
+.cancel-button {
+  text-decoration: none;
+  color: red;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.cancel-button:hover {
+  color: darkred;
 }

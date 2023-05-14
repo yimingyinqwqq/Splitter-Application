@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import { Link } from 'react-router-dom'
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import Button from "react-bootstrap/Button"
+import { Container, Nav, Navbar, Button } from 'react-bootstrap';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 const NavBar = () => {
+    const navigate = useNavigate();
+
     const [userName, setUserName] = useState("");
     const [showMobileMenu, setShowMobileMenu] = useState(false);
 
@@ -44,6 +44,8 @@ const NavBar = () => {
     const handleLogout = () => {
         //TODO: set a timeout to automatically display logout info
         sessionStorage.setItem("authenticated", "false");
+
+        navigate('/login', { replace: true });
     }
 
     return (
@@ -53,6 +55,7 @@ const NavBar = () => {
                     <Nav>
                         <Nav.Link as={Link} to="/dashboard" > Dashboard </Nav.Link>
                         <Nav.Link as={Link} to="/dashboard/scan" > Scan </Nav.Link>
+                        <Nav.Link as={Link} to="/dashboard/history" > History </Nav.Link>
                     </Nav>
 
                     {/* TODO: change margintop */}
