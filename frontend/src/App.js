@@ -6,6 +6,7 @@ import Login from "./Login"
 import Dashboard from './Dashboard';
 import FileUploader from './FileUploader';
 import Group from './Group';
+import History from './History';
 
 class App extends Component {
     render() {
@@ -17,6 +18,7 @@ class App extends Component {
                     <Route path="/login" element={<Login/>} />
                     <Route path="/dashboard" element={<><Dashboard/><Group/></>} />
                     <Route path="/dashboard/scan" element={<><Dashboard/><FileUploader/></>} />
+                    <Route path="/dashboard/history" element={<><Dashboard/><History/></>} />
                 </Routes>
             </BrowserRouter>
         );

@@ -435,7 +435,7 @@ def get_group_info():
 
 
 # Show group members
-@app.route("/show_members", methods=["GET"])
+@app.route("/show_members", methods=["POST"])
 def list_members():
     group_name = request.json["group_name"]
     # Check if group exist

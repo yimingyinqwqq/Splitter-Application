@@ -3,11 +3,7 @@
 // and https://github.com/dmalvia/React_Forms_Tutorials/blob/use-native/src/App.js
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from "react-router-dom";
-
-import Button from "react-bootstrap/Button"
-import Form from "react-bootstrap/Form"
-import InputGroup from "react-bootstrap/InputGroup";
-import Col from "react-bootstrap/Col";
+import { Button, Form, InputGroup, Col } from 'react-bootstrap';
 
 import GoogleButton from 'react-google-button'
 import { useGoogleLogin } from '@react-oauth/google';
@@ -16,7 +12,7 @@ import axios from 'axios';
 const Login = () => {
     const navigate = useNavigate();
 
-    const initialValues = {username: "", email: "", password: "", passwordRep: ""};
+    const initialValues = { username: "", email: "", password: "", passwordRep: "" };
     const [logFormValues, setLogFormValues] = useState(initialValues);                  // login form values
     const [logFormErrors, setLogFormErrors] = useState({});                             // login form errors
     const [regFormValues, setRegFormValues] = useState(initialValues);                  // registration form values
@@ -28,8 +24,8 @@ const Login = () => {
     // const [authenticated, setauthenticated] = useState(
     //     JSON.parse(localStorage.getItem("authenticated")) || false
     // );
-    const [ user, setUser ] = useState(null);
-    const [ profile, setProfile ] = useState(null);
+    const [user, setUser] = useState(null);
+    const [profile, setProfile] = useState(null);
 
     const state = {
         button: 1
@@ -61,29 +57,30 @@ const Login = () => {
             fetch('/googleLogin', {
                 method: 'POST',
                 mode: 'cors',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username: profile.name, email: profile.email, picture: profile.picture})
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: profile.name, email: profile.email, picture: profile.picture })
             })
-            .then(response => {
-                if (response.status === 200) {
-                    alert("You have successfully logged in.");
-    
-                    // set sessionStorage for authenticating purposes
-                    sessionStorage.setItem("authenticated", true);
-                    navigate('/dashboard', { replace: true });
-                } else {
-                    return response.json().then(data => {
-                        alert(data['error'])
-                    })
-                }
-            })
-            .catch(err => {
-                alert(err)
-            })
+                .then(response => {
+                    if (response.status === 200) {
+                        alert("You have successfully logged in.");
+
+                        // set sessionStorage for authenticating purposes
+                        sessionStorage.setItem("authenticated", true);
+                        navigate('/dashboard', { replace: true });
+                    } else {
+                        return response.json().then(data => {
+                            alert(data['error'])
+                        })
+                    }
+                })
+                .catch(err => {
+                    alert(err)
+                })
         }
     }, [profile]);
-    
-    const googlelogin = useGoogleLogin({
+
+    // function to revoke goole api for google login
+    const handlegooglelogin = useGoogleLogin({
         onSuccess: (codeResponse) => setUser(codeResponse),
         onError: (error) => console.log('Login Failed:', error)
     });
@@ -112,66 +109,46 @@ const Login = () => {
         if (state.button === 1) {
             e.preventDefault();
 
-            // const imgData = new FormData();
-            // imgData.append('receipt', fileUploaded);
-    
-            // fetch('/scan', {
-            //     method: 'POST',
-            //     mode: 'cors',
-            //     body: imgData
-            // })
-            //     .then(response => {
-            //         if (!response.ok) {
-            //             throw new Error(response.statusText)
-            //         }
-            //         const result_text = response.json()["1"];
-            //         console.log(result_text);
-    
-            //     }).catch(err => {
-            //         console.log(err)
-            //     })
-
             const formErrors = loginFormValidate(logFormValues);
             setLogFormErrors(formErrors);
 
-            // only for testing purposes
-            if (logFormValues.username === "123" && logFormValues.password === "123") {
-                alert("You have successfully logged in.");
+            // // only for testing purposes
+            // if (logFormValues.username === "123" && logFormValues.password === "123") {
+            //     alert("You have successfully logged in.");
 
-                // set sessionStorage for authenticating purposes
-                sessionStorage.setItem("authenticated", true);
-                navigate('/dashboard', { replace: true });
-            }
+            //     // set sessionStorage for authenticating purposes
+            //     sessionStorage.setItem("authenticated", true);
+            //     navigate('/dashboard', { replace: true });
+            // }
 
             fetch('/localLogin', {
                 method: 'POST',
                 mode: 'cors',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 //TODO: change usernmae 
-                body: JSON.stringify({email: logFormValues.username, password: logFormValues.password})
+                body: JSON.stringify({ email: logFormValues.username, password: logFormValues.password })
             })
-            .then(response => {
-                if (response.status === 200) {
-                    alert("You have successfully logged in.");
+                .then(response => {
+                    if (response.status === 200) {
+                        alert("You have successfully logged in.");
 
-                    // set sessionStorage for authenticating purposes
-                    sessionStorage.setItem("authenticated", true);
-                    navigate('/dashboard', { replace: true });
-                } else {
-                    return response.json().then(data => {
-                        alert(data['error'])
-                    })
-                }
-            })
-            .catch(err => {
-                alert(err)
-            })
-            
+                        // set sessionStorage for authenticating purposes
+                        sessionStorage.setItem("authenticated", true);
+                        navigate('/dashboard', { replace: true });
+                    } else {
+                        return response.json().then(data => {
+                            alert(data['error'])
+                        })
+                    }
+                })
+                .catch(err => {
+                    alert(err)
+                })
         }
 
         // google login
         else if (state.button === 2) {
-            googlelogin();
+            handlegooglelogin();
         }
     }
 
@@ -193,24 +170,23 @@ const Login = () => {
             fetch('/localRegister', {
                 method: 'POST',
                 mode: 'cors',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username: regFormValues.username, email: regFormValues.email, password: regFormValues.password})
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: regFormValues.username, email: regFormValues.email, password: regFormValues.password })
             })
-            .then(response => {
-                return response.json()
-            })
-            .then(data => {
-                console.log(data)
-            })
-            .catch(err => {
-                // alert(err)
-            })
+                .then(response => {
+                    return response.json()
+                })
+                .then(data => {
+                    console.log(data)
+                })
+                .catch(err => {
+                    alert(err)
+                })
 
         } else {
             alert("unsuccessful");
             e.stopPropagation();
         }
-        
     }
 
     // validate the login form with backend
@@ -236,6 +212,7 @@ const Login = () => {
 
     // validate the registration form
     const registerFormValidate = (values) => {
+        // TODO: move everything here to backend and use requests for verifying
         const errors = {};
 
         if (!values.username) {
@@ -271,7 +248,7 @@ const Login = () => {
     return (
         <main id="main-holder">
             {/* show login form */}
-            { isLoginForm &&
+            {isLoginForm &&
                 <div className="login-holder" align="center">
                     <div id="login-register-toggle">
                         <span style={{ marginLeft: "35%" }}> </span>
@@ -282,7 +259,7 @@ const Login = () => {
                     <br /><br />
 
                     {/* form for authentication/login purposes */}
-                    <Form noValidate autoComplete="off" onSubmit={handleLogin} style={{maxWidth: "200px"}}>
+                    <Form noValidate autoComplete="off" onSubmit={handleLogin} style={{ maxWidth: "200px" }}>
                         <Form.Group as={Col} controlId="login-validation-username">
                             <Form.Label> Username/Email </Form.Label>
                             <InputGroup hasValidation>
@@ -311,7 +288,7 @@ const Login = () => {
                                     placeholder="Password"
                                     name="password"
                                     value={logFormValues.password}
-                                    onChange={handleLogFormChange} 
+                                    onChange={handleLogFormChange}
                                     // isValid={isTouched && !logFormErrors.password}
                                     isInvalid={!!logFormErrors.password}
                                 />
@@ -328,12 +305,12 @@ const Login = () => {
 
                     <br /><br />
 
-                    <GoogleButton onClick={() => {state.button = 2; handleLogin();}} type="submit" />
+                    <GoogleButton onClick={() => { state.button = 2; handleLogin(); }} type="submit" />
                 </div>
             }
 
             {/* show register form */}
-            { !isLoginForm &&
+            {!isLoginForm &&
                 <div className="login-holder" align="center">
                     <div id="login-register-toggle">
                         <span style={{ marginLeft: "25%" }}> </span>
@@ -344,7 +321,7 @@ const Login = () => {
                     <br />
 
                     {/* form for register purposes */}
-                    <Form noValidate autoComplete="off" validated={isRegisterValidated} onSubmit={handleRegister} style={{maxWidth: "250px"}}>
+                    <Form noValidate autoComplete="off" validated={isRegisterValidated} onSubmit={handleRegister} style={{ maxWidth: "250px" }}>
                         <Form.Group as={Col} controlId="validation-username">
                             <Form.Label> Username </Form.Label>
                             <InputGroup hasValidation>
@@ -373,19 +350,19 @@ const Login = () => {
                                     placeholder="Email"
                                     name="email"
                                     value={regFormValues.email}
-                                    onChange={handleRegFormChange} 
+                                    onChange={handleRegFormChange}
                                     isValid={isTouched && !regFormErrors.email}
                                     isInvalid={!!regFormErrors.email}
                                 />
                                 <Form.Control.Feedback type="invalid"> {regFormErrors.email} </Form.Control.Feedback>
                             </InputGroup>
                         </Form.Group>
-                        
+
                         <br /> {!regFormErrors.email && <br />}
 
                         <Form.Group as={Col} controlId="validation-password">
                             <Form.Label> Password </Form.Label>
-                                <InputGroup hasValidation>
+                            <InputGroup hasValidation>
                                 <Form.Control
                                     required
                                     type="password"
@@ -426,7 +403,7 @@ const Login = () => {
                     </Form>
                 </div>
             }
-
+            
         </main>
     )
 }

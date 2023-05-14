@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import Button from "react-bootstrap/Button"
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-import ListGroup from 'react-bootstrap/ListGroup';
+import { Button, Form, InputGroup, ListGroup } from 'react-bootstrap';
 
 const Group = () => {
     const navigate = useNavigate();
@@ -13,6 +10,7 @@ const Group = () => {
     const [isJoinGroupNameValid, setIsJoinGroupNameValid] = useState(true);
     const [joinGroupError, setJoinGroupError] = useState("");
     const [userGroups, setUserGroups] = useState([]);                                         // all groups that the current user is in
+    const [currGroupInfo, setCurrGroupInfo] = useState(null);                                 // current group information that user is selected
 
 
     useEffect(() => {
@@ -54,7 +52,7 @@ const Group = () => {
 
     const handleCreateGroup = (e) => {
         e.preventDefault();
-        
+
         fetch('/create_group', {
             method: 'POST',
             mode: 'cors',
@@ -122,16 +120,37 @@ const Group = () => {
         e.preventDefault();
 
         console.log("item is: ", item);
-        
+
         // tell backend the selected group name
         fetch('/select_group', {
             method: 'POST',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({"group_name" : item})
+            body: JSON.stringify({ "group_name": item })
         })
 
-        navigate('/dashboard/scan', { replace: true });
+        fetch('/show_members', {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ "group_name": item })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText)
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                console.log("group info is: ", data);
+                setCurrGroupInfo(data);
+            })
+            .catch(err => {
+                console.log(err)
+            })
+
+        // navigate('/dashboard/scan', { replace: true });
     }
 
     return (
@@ -139,29 +158,43 @@ const Group = () => {
             <p className='scanning-section-text'> Welcome to your Dashboard</p>
 
             <div className="group-function-container">
+                <div className="group-box">
+                    <div className="group-box-left">
+                        <ListGroup className="group-container">
+                            {userGroups.length === 0 ? (
+                                <>
+                                    <ListGroup.Item variant="danger">
+                                        Add one group first
+                                    </ListGroup.Item>
+                                </>
+                            ) : (
+                                <>
+                                    {userGroups.map((item, index) => (
+                                        <ListGroup.Item key={index} id={"group" + index} action onClick={(e) => handleGroupSelection(e, item)} variant="warning">
+                                            {item}
+                                        </ListGroup.Item>
+                                    ))}
+                                </>
+                            )}
 
-
-                <ListGroup className="group-container">
-                    {userGroups.length === 0 ? (
-                        <>
-                            <ListGroup.Item variant="danger">
-                                Add one group first
-                            </ListGroup.Item>
-                        </>
-                    ) : (
-                        <>
-                            {userGroups.map((item, index) => (
-                                <ListGroup.Item key={index} id={"group" + index} action onClick={(e) => handleGroupSelection(e, item)} variant="warning">
-                                    {item}
-                                </ListGroup.Item>
-                            ))}
-                        </>
-                    )}
-
-                    {/* <ListGroup.Item action variant="primary">
-                    Select this group
-                </ListGroup.Item> */}
-                </ListGroup>
+                            {/* <ListGroup.Item action variant="primary">
+                                    Select this group
+                                </ListGroup.Item> */}
+                        </ListGroup>
+                    </div>
+                    <div className="group-box-right">
+                        {true && (
+                            <div>
+                                {/* <h3>{groups.find((group) => group.id === 1).name}</h3> */}
+                                {currGroupInfo && Object.keys(currGroupInfo).map((email, index) => (
+                                    <h> {email} </h>
+                                ))}
+                               
+                                {/* Display group information here */}
+                            </div>
+                        )}
+                    </div>
+                </div>
 
                 <Form className="create-group-container">
                     <InputGroup className="mb-3" hasValidation>
