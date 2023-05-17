@@ -270,10 +270,10 @@ def scan_confirm():
     for _, item in request.json.items():
         total_amount += float(item["amount"]) * float(item["price"])
     # TODO: add description in frontend
-    # description = request.json['description']
+    description = str(request.json).replace("'", '"')
 
-    # Bill.create(bill_date, creator, current_user.current_group, total_amount, description)
-    Bill.create(bill_date, creator, session.get('selected_group', None), total_amount, "")
+    Bill.create(bill_date, creator, session.get('selected_group', None), total_amount, description)
+    # Bill.create(bill_date, creator, session.get('selected_group', None), total_amount, "")
 
     # group_name = current_user.current_group
     group_name = session.get('selected_group', None)
@@ -424,7 +424,7 @@ def show_user_groups():
 
     return jsonify(group_list), 200
 
-
+# Deprecated
 @app.route("/get_group_info", methods=["POST"])
 def get_group_info():
     group_name = request.json["group_name"]
@@ -456,6 +456,43 @@ def create_bill():
     Bill.create(bill_name)
     return "200"
 
+# RETURN: a dictionary that has
+# key: id, value: integer
+# key: date, value: string
+# key: payer, value: string
+# key: total_amount, value: float
+# key: items, value: a list of dictionaries, where each dictionary has
+#       key: name, value: string
+#       key: amount, value: integer
+#       key: price, value: float
+@app.route("/show_bill_info", methods=["GET"])
+def show_bill_info():
+    current_group = session.get('selected_group', None)
+    if current_group == None:
+        return jsonify({"error": "No current group"}), 409
+    
+    bill_list = Group.get(current_group).list_bills_info()
+
+    result = []
+
+    for i in range(len(bill_list)):
+        bill = bill_list[i]
+        bill_dict = {}
+
+        bill_dict["id"] = i+1
+        bill_dict["date"] = bill[0]
+        bill_dict["payer"] = bill[1]
+        bill_dict["total_amount"] = bill[3]
+        item_list = []
+        
+        item_dict = json.loads(bill[4])
+        for _, item in item_dict.items():
+            item_list.append({"name": item["name"], "amount": item["amount"], "price": item["price"]})
+        bill_dict["items"] = item_list
+
+        result.append(bill_dict)
+    
+    return jsonify(result)
 
 # Show all bills in a group
 @app.route("/show_bill", methods=["POST"])
@@ -467,6 +504,7 @@ def list_bills():
         return jsonify({"error": "Group not exist"}), 409
 
     bill_list = group.list_bills()
+
     return jsonify(bill_list)
 
 

@@ -65,4 +65,20 @@ class Group:
             bills_list.append(row[0])
         
         return bills_list
+
+    def list_bills_info(self):
+        db = get_db()
+        bills = db.execute(
+            "SELECT bill_date, payer, bill.group_name, amount, description FROM bill JOIN chatgroup WHERE chatgroup.group_name = ?",
+            (self.group_name,)
+        )
+        if not bills:
+            return None
+        
+        bills_list = []
+        for row in bills:
+            bills_list.append([row[0], row[1], row[2], row[3], row[4]])
+        
+        return bills_list
+
   
