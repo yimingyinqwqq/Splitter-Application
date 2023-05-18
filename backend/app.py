@@ -270,7 +270,7 @@ def scan_confirm():
     for _, item in request.json.items():
         total_amount += float(item["amount"]) * float(item["price"])
     # TODO: add description in frontend
-    description = str(request.json).replace("'", '"')
+    description = str(request.json).replace("'", '"').replace("True", "true").replace("False", "false")
 
     Bill.create(bill_date, creator, session.get('selected_group', None), total_amount, description)
     # Bill.create(bill_date, creator, session.get('selected_group', None), total_amount, "")
@@ -456,7 +456,7 @@ def create_bill():
     Bill.create(bill_name)
     return "200"
 
-# RETURN: a dictionary that has
+# RETURN: a list of dictionaries, where each dictionary has
 # key: id, value: integer
 # key: date, value: string
 # key: payer, value: string
@@ -465,7 +465,7 @@ def create_bill():
 #       key: name, value: string
 #       key: amount, value: integer
 #       key: price, value: float
-@app.route("/show_bill_info", methods=["GET"])
+@app.route("/show_bill_info", methods=["POST"])
 def show_bill_info():
     current_group = session.get('selected_group', None)
     if current_group == None:
@@ -485,6 +485,7 @@ def show_bill_info():
         bill_dict["total_amount"] = bill[3]
         item_list = []
         
+        print(type(bill[4]))
         item_dict = json.loads(bill[4])
         for _, item in item_dict.items():
             item_list.append({"name": item["name"], "amount": item["amount"], "price": item["price"]})

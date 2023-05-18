@@ -2,9 +2,8 @@
 // and https://stackoverflow.com/questions/38049966/get-image-preview-before-uploading-in-react
 import React, { useState, useRef, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
-import Button from "react-bootstrap/Button"
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
+import { Button, Form, InputGroup, Row, Col } from 'react-bootstrap';
+import { Checkbox } from '@mui/material';
 
 const FileUploader = () => {
     // const navigate = useNavigate();
@@ -193,23 +192,24 @@ const FileUploader = () => {
                     <br></br>
 
                     <Form>
-                        <InputGroup className="mb-3">
-                            <Form.Label style={{ width: "40%", fontWeight: "bold" }}>Name</Form.Label>
-                            <Form.Label style={{ width: "33%", fontWeight: "bold" }}>Quantity</Form.Label>
-                            <Form.Label style={{ width: "20%", fontWeight: "bold" }}>Price($)</Form.Label>
-                        </InputGroup>
+                        <Form.Group className="mb-3 d-flex">
+                            <Col md={5}><Form.Label className="fw-bold">Name</Form.Label></Col>
+                            <Col md={3}><Form.Label className="fw-bold ms-2">Quantity</Form.Label></Col>
+                            <Col md={4}><Form.Label className="fw-bold ms-3">Price($)</Form.Label></Col>
+                        </Form.Group>
 
-                        {receiptData.map((line, index) =>
-                        (
-                            <InputGroup className="mb-3" key={index}>
-                                <Form.Label style={{ width: "40%" }}> {line[0]} </Form.Label>
-                                <InputGroup.Checkbox onChange={(e) => handleScanFormsChange(e, index, "checked")} />
-                                <Form.Control style={{ width: "5%" }} type="text" defaultValue={line[1]} onChange={(e) => handleScanFormsChange(e, index, "amount")} />
-                                <Form.Control style={{ width: "5%" }} type="text" defaultValue={line[2]} onChange={(e) => handleScanFormsChange(e, index, "price")} />
-                            </InputGroup>
-                        )
-                        )}
-                        <Button type="submit" onClick={handleSubmitScanForm}> Confirm Changes </Button>
+                        {receiptData.map((line, index) => (
+                            <Form.Group className="mb-3" key={index}>
+                                <Row>
+                                    <Col md={5}><Form.Label>{line[0]}</Form.Label></Col>
+                                    <Col md={3}><Form.Control type="text" defaultValue={line[1]} onChange={(e) => handleScanFormsChange(e, index, "amount")} /></Col>
+                                    <Col md={3}><Form.Control type="text" defaultValue={line[2]} onChange={(e) => handleScanFormsChange(e, index, "price")} /></Col>
+                                    <Col md={1}><Checkbox color="success" onChange={(e) => handleScanFormsChange(e, index, "checked")} /></Col>
+                                </Row>
+                            </Form.Group>
+                        ))}
+
+                        <Button type="submit" onClick={handleSubmitScanForm}>Confirm Changes</Button>
                     </Form>
                 </>
             ) : (
