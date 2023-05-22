@@ -22,6 +22,7 @@ const History = () => {
             method: 'POST',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
+            // CHANGEME: change this "0" to current group selected using variables or stuff
             body: JSON.stringify({ "selected_group": "0" })
         })
             .then(response => {
@@ -57,7 +58,7 @@ const History = () => {
                         {bill.items.map((item, item_index) => (
                             <div key={item_index} className="d-flex w-100 justify-content-between align-items-center">
                                 <h6 className="mb-0">{item.name}</h6>
-                                <span className="text-muted">${item.price}</span>
+                                <span className="text-muted">${item.amount * item.price}</span>
                             </div>
                         ))}
                     </div>
