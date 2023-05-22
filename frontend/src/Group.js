@@ -187,7 +187,7 @@ const Group = () => {
                             <div>
                                 {/* <h3>{groups.find((group) => group.id === 1).name}</h3> */}
                                 {currGroupInfo && Object.keys(currGroupInfo).map((email, index) => (
-                                    <h> {email} </h>
+                                    <h5 key={index}> {email} </h5>
                                 ))}
                                
                                 {/* Display group information here */}
