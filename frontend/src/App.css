@@ -66,6 +66,25 @@ body {
   outline: none;
 }
 
+.login-successful-modal .modal-content {
+  background-color: #dff0d8;
+  border-color: #c3e6cb;
+}
+
+.login-successful-modal .modal-title, .login-successful-modal .modal-body {
+  color: #155724;
+}
+
+.login-failed-modal .modal-content {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.login-failed-modal .modal-title, .login-failed-modal .modal-body {
+  color: #721c24;
+}
+
+
 #forget-password {
   text-shadow: 0px 0px 3px rgba(117, 117, 117, 0.12);
   color: #00000061;
@@ -251,10 +270,23 @@ body {
 
 
 /* history */
+.edit-button {
+  text-decoration: none;
+  color: rgb(43, 135, 248);
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+  padding-left: 5rem;
+  padding-right: 0;
+}
+
+.edit-button:hover {
+  color: darkblue;
+}
+
 .cancel-button {
   text-decoration: none;
   color: red;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+  padding-right: 0;
 }
 
 .cancel-button:hover {

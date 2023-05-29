@@ -35,8 +35,6 @@ const FileUploader = () => {
             .catch(err => {
                 console.log(err)
             })
-
-
     }, []);
 
     // Programatically click the hidden file input element
@@ -129,6 +127,9 @@ const FileUploader = () => {
                 const newItem = { ...prevScanForms[key], [tag]: !prevScanForms[key][tag] };
                 return { ...prevScanForms, [key]: newItem };
             });
+        } else if (tag === "attach_image") {
+            // TODO: send the image to backend
+            
         } else {
             e.preventDefault();
 
@@ -209,7 +210,11 @@ const FileUploader = () => {
                             </Form.Group>
                         ))}
 
-                        <Button type="submit" onClick={handleSubmitScanForm}>Confirm Changes</Button>
+                        <Form.Group className="mb-3 d-column">
+                            {/* FIXME: 1. figure out how to add text to a checkbox. 2. adjust the flex direction to be column */}
+                            <Checkbox color="success" onChange={(e) => handleScanFormsChange(e, -1, "attach_image")}>hihi</Checkbox>
+                            <Button type="submit" onClick={handleSubmitScanForm}>Confirm Changes</Button>
+                        </Form.Group>
                     </Form>
                 </>
             ) : (
