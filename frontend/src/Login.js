@@ -3,7 +3,7 @@
 // and https://github.com/dmalvia/React_Forms_Tutorials/blob/use-native/src/App.js
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from "react-router-dom";
-import { Button, Form, InputGroup, Col } from 'react-bootstrap';
+import { Button, Form, InputGroup, Col, Modal } from 'react-bootstrap';
 
 import GoogleButton from 'react-google-button'
 import { useGoogleLogin } from '@react-oauth/google';
@@ -26,6 +26,10 @@ const Login = () => {
     // );
     const [user, setUser] = useState(null);
     const [profile, setProfile] = useState(null);
+
+    const [isLoginSuccessModal, setIsLoginSuccessModal] = useState(false);
+    const [isLoginFailedModal, setIsLoginFailedModal] = useState(false);
+    const [loginFailedMsg, setLoginFailedMsg] = useState("");
 
     const state = {
         button: 1
@@ -62,14 +66,15 @@ const Login = () => {
             })
                 .then(response => {
                     if (response.status === 200) {
-                        alert("You have successfully logged in.");
+                        setIsLoginSuccessModal(true);
 
                         // set sessionStorage for authenticating purposes
                         sessionStorage.setItem("authenticated", true);
                         navigate('/dashboard', { replace: true });
                     } else {
                         return response.json().then(data => {
-                            alert(data['error'])
+                            setIsLoginFailedModal(true);
+                            alert(data['error']);
                         })
                     }
                 })
@@ -89,6 +94,13 @@ const Login = () => {
     const handleToggle = (e) => {
         e.preventDefault();
         setIsLoginForm(!isLoginForm);
+
+        // clear all data stored in login/registration form during toggle
+        setLogFormValues(initialValues);
+        setLogFormErrors({});
+        setRegFormValues(initialValues);
+        setRegFormErrors({});
+        setIsTouched(false);
     }
 
     // handle the onchange event when filling out the login form
@@ -130,14 +142,14 @@ const Login = () => {
             })
                 .then(response => {
                     if (response.status === 200) {
-                        alert("You have successfully logged in.");
+                        setIsLoginSuccessModal(true);
 
                         // set sessionStorage for authenticating purposes
                         sessionStorage.setItem("authenticated", true);
-                        navigate('/dashboard', { replace: true });
                     } else {
                         return response.json().then(data => {
-                            alert(data['error'])
+                            setIsLoginFailedModal(true);
+                            setLoginFailedMsg(data['error']);
                         })
                     }
                 })
@@ -300,7 +312,7 @@ const Login = () => {
 
                         <Button onClick={() => (state.button = 1)} type="submit"> Login </Button>
 
-                        <a id="forget-password" href="###"> Forgot Password? </a>
+                        <a id="forget-password" href="/forget-password"> Forgot Password? </a>
                     </Form>
 
                     <br /><br />
@@ -385,7 +397,7 @@ const Login = () => {
                                 <Form.Control
                                     required
                                     type="password"
-                                    placeholder="Confirm Password"
+                                    placeholder="Confirmed Password"
                                     name="passwordRep"
                                     value={regFormValues.passwordRep}
                                     onChange={handleRegFormChange}
@@ -403,7 +415,28 @@ const Login = () => {
                     </Form>
                 </div>
             }
-            
+
+            {isLoginSuccessModal &&
+                <Modal className="login-successful-modal" show={isLoginSuccessModal} onHide={() => { setIsLoginSuccessModal(false); navigate('/dashboard', { replace: true }); }}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Success</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body color='#721c24'>
+                        You have logged in!
+                    </Modal.Body>
+                </Modal>
+            }
+
+            {isLoginFailedModal &&
+                <Modal className="login-failed-modal" show={isLoginFailedModal} onHide={() => setIsLoginFailedModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title color='#721c24'>Failure</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {loginFailedMsg}
+                    </Modal.Body>
+                </Modal>}
+
         </main>
     )
 }
