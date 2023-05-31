@@ -8,9 +8,11 @@ const Group = () => {
     const [joinGroupName, setJoinGroupName] = useState("");
     const [isCreatGroupNameValid, setIsCreatGroupNameValid] = useState(true);
     const [isJoinGroupNameValid, setIsJoinGroupNameValid] = useState(true);
+    const [createGroupError, setCreateGroupError] = useState("");
     const [joinGroupError, setJoinGroupError] = useState("");
     const [userGroups, setUserGroups] = useState([]);                                         // all groups that the current user is in
-    const [currGroupInfo, setCurrGroupInfo] = useState(null);                                 // current group information that user is selected
+    const [currGroupName, setCurrGroupName] = useState("");                                   // current group that user selects
+    const [selectedGroupInfo, setSelectedGroupInfo] = useState(null);                         // current group information that user is selected
 
 
     useEffect(() => {
@@ -60,21 +62,14 @@ const Group = () => {
             body: JSON.stringify({ "group_name": creatGroupName })
         })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error(response.statusText);
-                }
-
-                return response.json();
-            })
-            .then(data => {
-                if (data === 200) {
-                    console.log("200");
-                    window.location.reload();
+                if (response.ok) {
                     setIsCreatGroupNameValid(true);
-                } else if (data === 409) {
-                    // group name already exists
-                    console.log("409");
+                    window.location.reload();
+                } else {
                     setIsCreatGroupNameValid(false);
+                    return response.json().then(data => {
+                        setCreateGroupError(data['error']);
+                    })
                 }
             })
             .catch(err => {
@@ -92,21 +87,16 @@ const Group = () => {
             body: JSON.stringify({ "group_name": joinGroupName })
         })
             .then(response => {
-                if (!response.ok && response.status !== 409) {
-                    console.log(response.statusText);
-                    throw new Error(response.statusText)
-                }
-
-                return response.json()
-            })
-            .then(data => {
-                if (data === 200) {
+                if (response.ok) {
                     setIsJoinGroupNameValid(true);
                     window.location.reload();
-                } else if (data["error"]) {
-                    // group name not found
-                    setJoinGroupError(data["error"]);
-                    setIsJoinGroupNameValid(false);
+                } else {
+                    setIsCreatGroupNameValid(false);
+                    return response.json().then(data => {
+                        // group name not found
+                        setJoinGroupError(data["error"]);
+                        setIsJoinGroupNameValid(false);
+                    })
                 }
             })
             .catch(err => {
@@ -115,19 +105,11 @@ const Group = () => {
 
     }
 
-    // handle when user select a group
-    const handleGroupSelection = (e, item) => {
+    // handle when user click on a group and show the group information
+    const handleShowGroup = (e, item) => {
         e.preventDefault();
 
-        console.log("item is: ", item);
-
-        // tell backend the selected group name
-        fetch('/select_group', {
-            method: 'POST',
-            mode: 'cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ "group_name": item })
-        })
+        setCurrGroupName(item);
 
         fetch('/show_members', {
             method: 'POST',
@@ -144,13 +126,27 @@ const Group = () => {
             })
             .then(data => {
                 console.log("group info is: ", data);
-                setCurrGroupInfo(data);
+                setSelectedGroupInfo(data);
             })
             .catch(err => {
                 console.log(err)
             })
+    }
 
-        // navigate('/dashboard/scan', { replace: true });
+    // handle when user select a group
+    const handleGroupSelection = (e) => {
+        e.preventDefault();
+
+        // tell backend the selected group name
+        fetch('/select_group', {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ "group_name": currGroupName })
+        })
+
+        //TODO: Selected group not reflecting immediately when called in FileUploader.js for GET method
+        navigate('/dashboard/scan', { replace: true });
     }
 
     return (
@@ -170,7 +166,7 @@ const Group = () => {
                             ) : (
                                 <>
                                     {userGroups.map((item, index) => (
-                                        <ListGroup.Item key={index} id={"group" + index} action onClick={(e) => handleGroupSelection(e, item)} variant="warning">
+                                        <ListGroup.Item key={index} id={"group" + index} action onClick={(e) => handleShowGroup(e, item)} variant="warning">
                                             {item}
                                         </ListGroup.Item>
                                     ))}
@@ -182,17 +178,15 @@ const Group = () => {
                                 </ListGroup.Item> */}
                         </ListGroup>
                     </div>
+
                     <div className="group-box-right">
-                        {true && (
-                            <div>
-                                {/* <h3>{groups.find((group) => group.id === 1).name}</h3> */}
-                                {currGroupInfo && Object.keys(currGroupInfo).map((email, index) => (
-                                    <h5 key={index}> {email} </h5>
-                                ))}
-                               
-                                {/* Display group information here */}
-                            </div>
-                        )}
+                        {/* <h3>{groups.find((group) => group.id === 1).name}</h3> */}
+                        {selectedGroupInfo && Object.keys(selectedGroupInfo).map((email, index) => (
+                            <h5 key={index}> {email} </h5>
+                        ))}
+
+                        {/* Display group information here */}
+                        {selectedGroupInfo && <Button onClick={handleGroupSelection} style={{ marginTop: "2rem" }}>Select Group</Button>}
                     </div>
                 </div>
 
@@ -206,7 +200,7 @@ const Group = () => {
                             onChange={handleCreateGroupFormChange}
                             isInvalid={!isCreatGroupNameValid}
                         />
-                        <Form.Control.Feedback type="invalid"> The group name has been taken! </Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid"> {createGroupError} </Form.Control.Feedback>
                     </InputGroup>
                     <Button type="submit" onClick={handleCreateGroup}> Create Group </Button>
                 </Form>

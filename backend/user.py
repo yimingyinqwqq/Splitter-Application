@@ -10,6 +10,7 @@ class User(UserMixin):
         self.balance = balance
         self.password = password
         self.current_group = current_group
+        self.max_num_group = 3
 
     #Override the Flask default get_id method to return the user's email
     def get_id(self):
