@@ -161,6 +161,7 @@ body {
   }
 
   .navbar-container p {
+    margin-top: 30vh;
     margin-left: 0;
   }
 
@@ -250,6 +251,7 @@ body {
 
 .group-box-right {
   flex-grow: 1;
+  flex-direction: column;
   width: 20vw;
   background-color: #ffffff;
   color: #1a0303;
@@ -274,7 +276,8 @@ body {
   text-decoration: none;
   color: rgb(43, 135, 248);
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
-  padding-left: 5rem;
+  margin-left: 5rem;
+  padding-left: 0;
   padding-right: 0;
 }
 
@@ -286,6 +289,8 @@ body {
   text-decoration: none;
   color: red;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+  margin-left: 0.75rem;
+  padding-left: 0;
   padding-right: 0;
 }
 

@@ -416,6 +416,7 @@ const Login = () => {
                 </div>
             }
 
+            {/* modals showing login success or failure */}
             {isLoginSuccessModal &&
                 <Modal className="login-successful-modal" show={isLoginSuccessModal} onHide={() => { setIsLoginSuccessModal(false); navigate('/dashboard', { replace: true }); }}>
                     <Modal.Header closeButton>

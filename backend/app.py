@@ -306,12 +306,17 @@ def scan_confirm():
 def create_group():
     group_name = request.json["group_name"]
     if Group.get(group_name) != None:
-        return "409"
+        return jsonify({"error": "The group name has been taken!"}), 409
+    
+    # check if exceed maximum number of group per user
+    group_list = User.load_relevent_groups(current_user.email)
+    if len(group_list) >= current_user.max_num_group:
+        return jsonify({"error": "Number of Groups Exceeds Maximum limit!"}), 409
 
     # check empty group name
     status = Group.create(group_name)
     if status == None:
-        return "409"
+        return jsonify({"error": "Group Name Cannot be empty!"}), 409
 
     # Add user to the created group
     User.add_to_group(current_user.email, group_name)
@@ -334,6 +339,11 @@ def add_user_to_group():
 
     if User.user_in_group(current_user.email, group_name):
         return jsonify({"error": "User already in the group"}), 409
+    
+    # check if exceed maximum number of group per user
+    group_list = User.load_relevent_groups(current_user.email)
+    if len(group_list) >= current_user.max_num_group:
+        return jsonify({"error": "Number of Groups Exceeds Maximum limit!"}), 409
 
     User.add_to_group(current_user.email, group_name)
     return "200"
